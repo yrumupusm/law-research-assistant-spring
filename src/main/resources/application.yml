@@ -1,0 +1,85 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: law-research-assistant
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:lawassistant;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create-drop}
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: ${H2_CONSOLE_ENABLED:true}
+      path: ${H2_CONSOLE_PATH:/h2-console}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  http:
+    timeout-seconds: ${HTTP_TIMEOUT_SECONDS:${LLM_TIMEOUT_SECONDS:30}}
+  llm:
+    provider: ${LLM_PROVIDER:mock}
+    base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+    api-key: ${LLM_API_KEY:${OPENROUTER_API_KEY:}}
+    model: ${LLM_MODEL:mock-law-assistant}
+    temperature: ${LLM_TEMPERATURE:0.1}
+    max-tokens: ${LLM_MAX_TOKENS:1200}
+    timeout-seconds: ${LLM_TIMEOUT_SECONDS:30}
+  embedding:
+    provider: ${EMBEDDING_PROVIDER:mock}
+    base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+    api-key: ${EMBEDDING_API_KEY:${OPENROUTER_API_KEY:}}
+    model: ${EMBEDDING_MODEL:mock-embedding}
+    dimensions: ${EMBEDDING_DIMENSIONS:8}
+    max-chars: ${EMBEDDING_MAX_CHARS:4000}
+    batch-size: ${EMBEDDING_BATCH_SIZE:32}
+  reranker:
+    provider: ${RERANKER_PROVIDER:mock}
+    base-url: ${RERANKER_BASE_URL:https://api.cohere.com}
+    api-key: ${RERANKER_API_KEY:}
+    model: ${RERANKER_MODEL:mock-reranker}
+    top-k: ${RERANKER_TOP_K:5}
+  vector:
+    provider: ${VECTOR_PROVIDER:inmemory}
+    collection: ${VECTOR_COLLECTION:law_articles}
+    top-k: ${VECTOR_TOP_K:5}
+    qdrant:
+      base-url: ${QDRANT_BASE_URL:http://localhost:6333}
+      api-key: ${QDRANT_API_KEY:}
+      distance: ${QDRANT_DISTANCE:Cosine}
+  rag:
+    top-k: ${RAG_TOP_K:5}
+    snapshot-prefix: ${RAG_SNAPSHOT_PREFIX:law}
+  ingestion:
+    source-dir: ${LAW_SOURCE_DIR:}
+    include-dirs: ${LAW_SOURCE_INCLUDE_DIRS:}
+    include-files: ${LAW_SOURCE_INCLUDE_FILES:}
+  source:
+    repo-url: ${LAW_SOURCE_REPO_URL:}
+    local-dir: ${LAW_SOURCE_DIR:}
+    branch: ${LAW_SOURCE_BRANCH:main}
+  audit:
+    search-log-retention-days: ${SEARCH_LOG_RETENTION_DAYS:90}
+    log-sensitive-data: ${LOG_SENSITIVE_DATA:false}
+    store-raw-question: ${STORE_RAW_QUESTION:false}
+    enable-agent-trace: ${ENABLE_AGENT_TRACE:true}
+  admin:
+    reindex-enabled: ${ADMIN_REINDEX_ENABLED:false}
+  reference-data:
+    enabled: ${REFERENCE_DATA_ENABLED:true}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html

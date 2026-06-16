@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>법령 리서치 어시스턴트</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="app-nav">
+        <div class="nav-inner">
+            <a class="brand" href="/" aria-label="법령 리서치 어시스턴트">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="img">
+                        <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5v-17Z"></path>
+                        <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20"></path>
+                        <path d="M8 6h8M8 10h7"></path>
+                    </svg>
+                </span>
+                <span>법령 리서치 어시스턴트</span>
+            </a>
+            <nav class="nav-links" aria-label="주요 메뉴">
+                <a href="/" class="active">질문</a>
+                <a href="/admin.html">관리</a>
+                <a href="/swagger-ui/index.html">API 문서</a>
+                <a href="/api/admin/status">상태</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="shell">
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z"></path>
+                    <path d="M8 7h8M8 11h6"></path>
+                </svg>
+            </div>
+            <h1 id="page-title">질문에 맞는 법령 근거를 찾아 정리합니다</h1>
+            <p>질문을 입력하면 관련 법령과 조문을 검색하고, 인용 근거와 추가 확인 항목을 함께 제공합니다.</p>
+        </section>
+
+        <section class="query-panel" aria-labelledby="query-title">
+            <div class="panel-heading">
+                <div>
+                    <h2 id="query-title">질문 입력</h2>
+                    <p>수출통제, 방산, 기술자료 제공, 전략물자 반출 등 확인하려는 상황을 자연어로 입력하세요.</p>
+                </div>
+                <div id="service-status" class="status-pill">상태 확인 중</div>
+            </div>
+
+            <form id="ask-form" class="ask-form">
+                <label class="sr-only" for="question">질문</label>
+                <textarea id="question" maxlength="4000" rows="5" placeholder="예: 해외 업체에 기술자료를 제공해도 되나요?"></textarea>
+
+                <div class="option-row">
+                    <label class="date-field" for="as-of-date">
+                        <span>기준일</span>
+                        <input id="as-of-date" type="date">
+                    </label>
+                    <button id="today-button" class="secondary-button" type="button">오늘</button>
+                    <button id="clear-date-button" class="secondary-button" type="button">해제</button>
+                </div>
+
+                <div class="form-footer">
+                    <span id="char-count">0/4000</span>
+                    <button id="submit-button" class="primary-button" type="submit">
+                        <span>조사 시작</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 12h14M13 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            <div class="examples" aria-label="예시 질문">
+                <button type="button" data-question="해외 업체에 기술자료를 제공해도 되나요?">
+                    해외 업체에 기술자료를 제공해도 되나요?
+                </button>
+                <button type="button" data-question="전략물자를 수출하기 전에 어떤 허가 요건을 확인해야 하나요?">
+                    전략물자를 수출하기 전에 어떤 허가 요건을 확인해야 하나요?
+                </button>
+                <button type="button" data-question="방산 관련 자료를 이전하려면 어떤 절차가 필요한가요?">
+                    방산 관련 자료를 이전하려면 어떤 절차가 필요한가요?
+                </button>
+            </div>
+        </section>
+
+        <section id="result" class="result-area" aria-live="polite"></section>
+    </main>
+
+    <script src="/app.js"></script>
+</body>
+</html>

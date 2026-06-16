@@ -1,0 +1,11 @@
+.gradle/
+.idea/
+target/
+build/
+out/
+.env
+devlegalize-kr/
+*.log
+*.db
+*.mv.db
+*.trace.db

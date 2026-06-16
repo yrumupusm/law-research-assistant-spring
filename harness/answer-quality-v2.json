@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "2",
+  "name": "answer-quality-v2",
+  "createdAt": "2026-06-16",
+  "purpose": "답변 생성 품질 회귀 검증. retrieval recall과 분리해 한국어 응답, 인용 조문, 금지 문구, 단정 표현, 조문번호 유효성을 확인한다.",
+  "metrics": [
+    "criticStatus",
+    "minCitedArticles",
+    "bannedPhrases",
+    "koreanVisibleText",
+    "validArticleNumbers",
+    "reasoningArticleNumbers",
+    "maxMarkdownMarkers"
+  ],
+  "cases": [
+    {
+      "id": "v2-q01-revision-quality",
+      "description": "개정 비교형 답변은 한국어 설명과 인용 조문을 유지하고, 검토용 표현으로 마무리해야 한다.",
+      "draft": {
+        "status": "OK",
+        "reasoning": "대외무역법 제19조의2는 현행 조문과 이전 회차의 표현 차이를 비교해 검토할 수 있습니다. 실제 적용 여부는 품목, 목적지 국가, 최종 사용자 정보를 함께 확인해야 합니다.",
+        "followUpQuestions": [
+          "비교하려는 기준일과 거래 시점을 확인해 주세요."
+        ],
+        "citedArticles": [
+          {
+            "lawTitle": "대외무역법",
+            "articleNumber": "제19조의2"
+          }
+        ]
+      },
+      "expectations": {
+        "criticStatus": "OK",
+        "qualityChecks": true,
+        "minCitedArticles": 1,
+        "validArticleNumbers": ["제19조의2"],
+        "bannedPhrases": ["demo", "sample", "샘플", "데모", "미니 프로젝트"],
+        "requireKoreanVisibleText": true,
+        "maxMarkdownMarkers": 2
+      }
+    },
+    {
+      "id": "v2-q02-demo-copy-blocked",
+      "description": "데모/샘플 문구와 영어 중심 답변은 사용자에게 노출하지 않는다.",
+      "draft": {
+        "status": "OK",
+        "reasoning": "This response is based on sample articles for a demo project.",
+        "followUpQuestions": [
+          "What type of item is being exported?"
+        ],
+        "citedArticles": [
+          {
+            "lawTitle": "대외무역법",
+            "articleNumber": "제19조"
+          }
+        ]
+      },
+      "expectations": {
+        "criticStatus": "FAILED",
+        "qualityChecks": false
+      }
+    },
+    {
+      "id": "v2-q03-decisive-legal-blocked",
+      "description": "허가 가능 여부를 법률 자문처럼 단정하는 문구는 차단한다.",
+      "draft": {
+        "status": "OK",
+        "reasoning": "대외무역법 제19조에 따라 이 거래는 문제없습니다.",
+        "followUpQuestions": [
+          "품목과 목적지 국가를 확인해 주세요."
+        ],
+        "citedArticles": [
+          {
+            "lawTitle": "대외무역법",
+            "articleNumber": "제19조"
+          }
+        ]
+      },
+      "expectations": {
+        "criticStatus": "FAILED",
+        "qualityChecks": false
+      }
+    },
+    {
+      "id": "v2-q04-no-citation-blocked",
+      "description": "OK 또는 LOW_CONFIDENCE 답변은 인용 조문 없이 통과할 수 없다.",
+      "draft": {
+        "status": "OK",
+        "reasoning": "전략물자 수출은 품목과 최종 사용자를 확인해야 합니다.",
+        "followUpQuestions": [
+          "품목의 구체적인 종류를 확인해 주세요."
+        ],
+        "citedArticles": []
+      },
+      "expectations": {
+        "criticStatus": "FAILED",
+        "qualityChecks": false
+      }
+    },
+    {
+      "id": "v2-q05-low-confidence-with-citation",
+      "description": "근거가 약한 답변도 인용 조문이 있으면 LOW_CONFIDENCE 상태로 검토용 답변을 유지할 수 있다.",
+      "draft": {
+        "status": "LOW_CONFIDENCE",
+        "reasoning": "검색된 조문은 있으나 질문과의 직접 관련성이 충분히 높지 않습니다. 관세법 제241조를 우선 확인하고 수출신고 대상과 시점을 함께 검토해야 합니다.",
+        "followUpQuestions": [
+          "수출하려는 물품의 품명과 반송 여부를 확인해 주세요."
+        ],
+        "citedArticles": [
+          {
+            "lawTitle": "관세법",
+            "articleNumber": "제241조"
+          }
+        ]
+      },
+      "expectations": {
+        "criticStatus": "LOW_CONFIDENCE",
+        "qualityChecks": true,
+        "minCitedArticles": 1,
+        "validArticleNumbers": ["제241조"],
+        "bannedPhrases": ["demo", "sample", "샘플", "데모", "미니 프로젝트"],
+        "requireKoreanVisibleText": true,
+        "maxMarkdownMarkers": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "id": "q01-technical-data-overseas",
+    "question": "해외 업체에 기술자료를 제공해도 되나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "방위사업법", "articleNumber": "제57조"},
+      {"lawTitle": "대외무역법", "articleNumber": "제19조"}
+    ]
+  },
+  {
+    "id": "q02-strategic-item-export",
+    "question": "전략물자를 수출하려면 어떤 허가 요건을 확인해야 하나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "대외무역법", "articleNumber": "제19조"},
+      {"lawTitle": "대외무역법", "articleNumber": "제19조의2"}
+    ]
+  },
+  {
+    "id": "q03-defense-transfer",
+    "question": "방산 관련 기술자료를 해외로 이전하려면 어떤 절차가 필요한가요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "방위사업법", "articleNumber": "제57조"}
+    ]
+  },
+  {
+    "id": "q04-trade-security-legal-basis",
+    "question": "무역안보관리원의 법적 근거는 어디에 있나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "대외무역법", "articleNumber": "제25조"}
+    ]
+  },
+  {
+    "id": "q05-insufficient",
+    "question": "이거 해도 돼?",
+    "expectedStatus": "INSUFFICIENT_INFO",
+    "minCitedArticles": 0,
+    "maxVectorHits": 0,
+    "expectedCitations": []
+  },
+  {
+    "id": "q06-law-metadata",
+    "question": "대외무역법 시행일은 언제인가요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "대외무역법", "articleNumber": "제19조"},
+      {"lawTitle": "대외무역법", "articleNumber": "제19조의2"},
+      {"lawTitle": "대외무역법", "articleNumber": "제25조"},
+      {"lawTitle": "대외무역법", "articleNumber": "제53조"}
+    ]
+  },
+  {
+    "id": "q07-revision-compare",
+    "question": "대외무역법 제19조의2는 이전과 어떻게 바뀌었나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "minHistoricalEntries": 1,
+    "expectedCitations": [
+      {"lawTitle": "대외무역법", "articleNumber": "제19조의2"}
+    ]
+  },
+  {
+    "id": "q08-revision-content",
+    "question": "대외무역법 제19조의2 개정 내용은 무엇이 바뀌었나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "minHistoricalEntries": 1,
+    "expectedCitations": [
+      {"lawTitle": "대외무역법", "articleNumber": "제19조의2"}
+    ]
+  },
+  {
+    "id": "q09-tank-export",
+    "question": "탱크를 수출하려는데 관련 법령이 뭐 있어?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "방위사업법", "articleNumber": "제57조"},
+      {"lawTitle": "국가첨단전략산업 경쟁력 강화 및 보호에 관한 특별조치법", "articleNumber": "제12조"}
+    ]
+  },
+  {
+    "id": "q10-strategic-item-classification",
+    "question": "전략물자 판정은 누가 신청할 수 있나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "대외무역법", "articleNumber": "제20조"}
+    ]
+  },
+  {
+    "id": "q11-defense-broker-registration",
+    "question": "방위사업법상 군수품 무역대리업 등록 요건이 있나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "방위사업법", "articleNumber": "제57조의2"}
+    ]
+  },
+  {
+    "id": "q12-customs-export-declaration",
+    "question": "관세법상 수출신고는 언제 해야 하나요?",
+    "expectedStatus": "OK",
+    "minCitedArticles": 1,
+    "minVectorHits": 1,
+    "expectedCitations": [
+      {"lawTitle": "관세법", "articleNumber": "제241조"}
+    ]
+  }
+]

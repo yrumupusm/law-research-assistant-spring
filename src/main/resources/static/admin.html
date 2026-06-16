@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>관리 - 법령 리서치 어시스턴트</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="app-nav">
+        <div class="nav-inner">
+            <a class="brand" href="/" aria-label="법령 리서치 어시스턴트">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="img">
+                        <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5v-17Z"></path>
+                        <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20"></path>
+                        <path d="M8 6h8M8 10h7"></path>
+                    </svg>
+                </span>
+                <span>법령 리서치 어시스턴트</span>
+            </a>
+            <nav class="nav-links" aria-label="주요 메뉴">
+                <a href="/">질문</a>
+                <a href="/admin.html" class="active">관리</a>
+                <a href="/swagger-ui/index.html">API 문서</a>
+                <a href="/api/admin/status">상태</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="shell wide-shell">
+        <section class="page-heading" aria-labelledby="admin-title">
+            <div>
+                <h1 id="admin-title">관리 대시보드</h1>
+                <p>법령 데이터 상태, 색인 실행, 검색 로그와 에이전트 처리 이력을 확인합니다.</p>
+            </div>
+            <button id="refresh-button" class="secondary-button" type="button">새로고침</button>
+        </section>
+
+        <section id="admin-status" class="metric-grid" aria-label="서비스 상태"></section>
+
+        <section class="admin-grid">
+            <article class="admin-panel">
+                <div class="panel-heading compact-heading">
+                    <div>
+                        <h2>Provider 점검</h2>
+                        <p>LLM, 임베딩, 재정렬 provider 연결 상태를 확인합니다.</p>
+                    </div>
+                    <button id="provider-smoke-button" class="secondary-button" type="button">연결 점검</button>
+                </div>
+                <div id="provider-smoke-result" class="provider-status muted">연결 점검 대기 중입니다.</div>
+
+                <div class="panel-heading compact-heading">
+                    <div>
+                        <h2>색인 관리</h2>
+                        <p>현재 조문을 다시 임베딩하고 검색 인덱스를 갱신합니다.</p>
+                    </div>
+                    <button id="reindex-button" class="primary-button" type="button">재색인</button>
+                </div>
+                <div id="reindex-result" class="muted">실행 대기 중입니다.</div>
+
+                <div class="ingest-form">
+                    <label for="source-repo-url">법령 Git 저장소 URL</label>
+                    <input id="source-repo-url" class="search-input" type="text" placeholder="예: https://example.com/legal-data.git">
+                    <div class="inline-form source-sync-row">
+                        <input id="source-local-dir" class="search-input" type="text" placeholder="저장 경로 예: C:\legal-data">
+                        <input id="source-branch" class="search-input compact-input" type="text" value="main" aria-label="브랜치">
+                        <button id="sync-source-button" class="secondary-button" type="button">동기화 및 수집</button>
+                    </div>
+                </div>
+                <div id="sync-source-result" class="muted">저장소 동기화 대기 중입니다.</div>
+
+                <div class="ingest-form">
+                    <label for="source-dir">로컬 법령 Markdown 경로</label>
+                    <div class="inline-form">
+                        <input id="source-dir" class="search-input" type="text" placeholder="예: C:\legal-data">
+                        <button id="ingest-button" class="secondary-button" type="button">수집 및 색인</button>
+                    </div>
+                </div>
+                <div id="ingest-result" class="muted">수집 실행 대기 중입니다.</div>
+                <div id="ingestion-runs" class="table-wrap"></div>
+            </article>
+
+            <article class="admin-panel">
+                <div class="panel-heading compact-heading">
+                    <div>
+                        <h2>법령 목록</h2>
+                        <p>법령을 선택하면 현행 조문을 확인할 수 있습니다.</p>
+                    </div>
+                    <input id="law-keyword" class="search-input" type="search" placeholder="법령명 검색">
+                </div>
+                <div id="law-list" class="list-box"></div>
+                <div id="law-detail" class="detail-box"></div>
+            </article>
+        </section>
+
+        <section class="admin-grid">
+            <article class="admin-panel">
+                <h2 class="section-title">검색 로그</h2>
+                <div id="search-logs" class="table-wrap"></div>
+            </article>
+
+            <article class="admin-panel">
+                <div class="panel-heading compact-heading trace-filter-heading">
+                    <div>
+                        <h2>에이전트 추적</h2>
+                        <p>검색 로그의 요청 ID로 처리 단계를 확인합니다.</p>
+                    </div>
+                    <div class="trace-filter">
+                        <input id="trace-request-id" class="search-input compact-input" type="search" placeholder="requestId">
+                        <button id="clear-trace-filter" class="secondary-button" type="button">전체</button>
+                    </div>
+                </div>
+                <div id="agent-traces" class="table-wrap"></div>
+            </article>
+        </section>
+    </main>
+
+    <script src="/admin.js"></script>
+</body>
+</html>

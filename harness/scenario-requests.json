@@ -1,0 +1,126 @@
+[
+  {
+    "id": "technical-data-overseas",
+    "description": "해외 수령자에게 기술자료를 제공하는 질문은 방산 기술이전 또는 수출통제 관련 조문을 근거로 반환해야 합니다.",
+    "request": {
+      "question": "해외 업체에 기술자료를 제공해도 되나요?",
+      "asOf": null
+    },
+    "expected": {
+      "status": "OK",
+      "minCitedArticles": 1,
+      "minVectorHits": 1,
+      "mustContainLawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95",
+      "expectedCitations": [
+        {"lawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95", "articleNumber": "\uc81c57\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"}
+      ]
+    }
+  },
+  {
+    "id": "strategic-item-export",
+    "description": "전략물자 수출 질문은 대외무역법의 수출통제 관련 조문을 근거로 반환해야 합니다.",
+    "request": {
+      "question": "전략물자를 수출하기 전에 목적지 국가와 최종 사용자를 검토해야 하나요?",
+      "asOf": null
+    },
+    "expected": {
+      "status": "OK",
+      "minCitedArticles": 1,
+      "minVectorHits": 1,
+      "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
+      "expectedCitations": [
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"}
+      ]
+    }
+  },
+  {
+    "id": "korean-technical-data",
+    "description": "한국어 기술자료 제공 질문은 관련 조문 검색어로 정규화되어 인용 근거를 반환해야 합니다.",
+    "request": {
+      "question": "\ud574\uc678 \uc5c5\uccb4\uc5d0 \uae30\uc220\uc790\ub8cc\ub97c \uc81c\uacf5\ud574\ub3c4 \ub418\ub098\uc694?",
+      "asOf": null
+    },
+    "expected": {
+      "status": "OK",
+      "minCitedArticles": 1,
+      "minVectorHits": 1,
+      "mustContainLawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95",
+      "expectedCitations": [
+        {"lawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95", "articleNumber": "\uc81c57\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"}
+      ]
+    }
+  },
+  {
+    "id": "insufficient-question",
+    "description": "대상과 행위가 불명확한 질문은 일반 답변으로 처리하지 않아야 합니다.",
+    "request": {
+      "question": "이거 해도 돼?",
+      "asOf": null
+    },
+    "expected": {
+      "status": "INSUFFICIENT_INFO",
+      "minCitedArticles": 0,
+      "maxVectorHits": 0,
+      "expectedCitations": []
+    }
+  },
+  {
+    "id": "law-metadata",
+    "description": "법령 시행일 질문은 법령 메타데이터를 기준으로 답변해야 합니다.",
+    "request": {
+      "question": "대외무역법 시행일은 언제인가요?",
+      "asOf": null
+    },
+    "expected": {
+      "status": "OK",
+      "minCitedArticles": 1,
+      "minVectorHits": 1,
+      "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
+      "expectedCitations": [
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c25\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c53\uc870"}
+      ]
+    }
+  },
+  {
+    "id": "revision-compare",
+    "description": "개정 비교 질문은 비교 대상 조문과 이전 회차를 근거로 답변해야 합니다.",
+    "request": {
+      "question": "대외무역법 제19조의2는 이전과 어떻게 바뀌었나요?",
+      "asOf": null
+    },
+    "expected": {
+      "status": "OK",
+      "minCitedArticles": 1,
+      "minVectorHits": 1,
+      "minHistoricalEntries": 1,
+      "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
+      "expectedCitations": [
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"}
+      ]
+    }
+  },
+  {
+    "id": "revision-content",
+    "description": "개정 내용 질문은 메타데이터가 아니라 조문 회차 비교로 처리해야 합니다.",
+    "request": {
+      "question": "대외무역법 제19조의2 개정 내용은 무엇이 바뀌었나요?",
+      "asOf": null
+    },
+    "expected": {
+      "status": "OK",
+      "minCitedArticles": 1,
+      "minVectorHits": 1,
+      "minHistoricalEntries": 1,
+      "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
+      "expectedCitations": [
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"}
+      ]
+    }
+  }
+]

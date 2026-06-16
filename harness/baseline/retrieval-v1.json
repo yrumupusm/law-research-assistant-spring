@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1",
+  "name": "retrieval-v1",
+  "createdAt": "2026-06-16",
+  "purpose": "한국어 고정 질문셋 기준 status, citation 개수, vector hit, 기대 법령/조문 citation 회귀 검증",
+  "testClass": "com.example.lawassistant.eval.EvaluationHarnessTest",
+  "dataset": "harness/questions.json",
+  "thresholds": {
+    "statusMatch": true,
+    "minCitedArticles": "question.minCitedArticles",
+    "minVectorHits": "question.minVectorHits",
+    "maxVectorHits": "question.maxVectorHits",
+    "expectedCitationRule": "expectedCitations 중 최소 1건이 citedArticles에 포함"
+  },
+  "latestVerifiedCommand": "C:\\dev\\apache-maven-3.9.9\\bin\\mvn.cmd -Dtest=EvaluationHarnessTest test",
+  "latestVerifiedResult": {
+    "testsRun": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}
