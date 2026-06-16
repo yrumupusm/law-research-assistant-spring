@@ -4,6 +4,7 @@ target/
 build/
 out/
 .env
+handoff.md
 devlegalize-kr/
 *.log
 *.db
