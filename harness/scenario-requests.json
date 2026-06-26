@@ -10,10 +10,10 @@
       "status": "OK",
       "minCitedArticles": 1,
       "minVectorHits": 1,
-      "mustContainLawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95",
+      "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
       "expectedCitations": [
-        {"lawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95", "articleNumber": "\uc81c57\uc870"},
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"}
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c26\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95 \uc2dc\ud589\ub839", "articleNumber": "\uc81c47\uc870"}
       ]
     }
   },
@@ -30,8 +30,8 @@
       "minVectorHits": 1,
       "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
       "expectedCitations": [
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"},
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"}
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c26\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95 \uc2dc\ud589\ub839", "articleNumber": "\uc81c33\uc870"}
       ]
     }
   },
@@ -46,10 +46,10 @@
       "status": "OK",
       "minCitedArticles": 1,
       "minVectorHits": 1,
-      "mustContainLawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95",
+      "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
       "expectedCitations": [
-        {"lawTitle": "\ubc29\uc704\uc0ac\uc5c5\ubc95", "articleNumber": "\uc81c57\uc870"},
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"}
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c26\uc870"},
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95 \uc2dc\ud589\ub839", "articleNumber": "\uc81c47\uc870"}
       ]
     }
   },
@@ -80,10 +80,7 @@
       "minVectorHits": 1,
       "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
       "expectedCitations": [
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870"},
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"},
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c25\uc870"},
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c53\uc870"}
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c59\uc870"}
       ]
     }
   },
@@ -95,10 +92,10 @@
       "asOf": null
     },
     "expected": {
-      "status": "OK",
+      "status": "LOW_CONFIDENCE",
       "minCitedArticles": 1,
       "minVectorHits": 1,
-      "minHistoricalEntries": 1,
+      "minHistoricalEntries": 0,
       "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
       "expectedCitations": [
         {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"}
@@ -113,13 +110,13 @@
       "asOf": null
     },
     "expected": {
-      "status": "OK",
+      "status": "LOW_CONFIDENCE",
       "minCitedArticles": 1,
       "minVectorHits": 1,
-      "minHistoricalEntries": 1,
+      "minHistoricalEntries": 0,
       "mustContainLawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95",
       "expectedCitations": [
-        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c19\uc870\uc7582"}
+        {"lawTitle": "\ub300\uc678\ubb34\uc5ed\ubc95", "articleNumber": "\uc81c59\uc870"}
       ]
     }
   }

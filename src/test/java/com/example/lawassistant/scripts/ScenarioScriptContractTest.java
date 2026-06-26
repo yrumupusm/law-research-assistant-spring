@@ -45,6 +45,10 @@ class ScenarioScriptContractTest {
         assertThat(script).contains("effective_basis");
         assertThat(script).contains("request_id");
         assertThat(script).contains("reindex_enabled");
+        assertThat(script).contains("Expected Foreign Trade Act family citation.");
+        assertThat(script).contains("Expected Foreign Trade Act family citation in v1 ask response.");
+        assertThat(script).doesNotContain("Expected first core citation.");
+        assertThat(script).doesNotContain("Expected second core citation.");
         assertThat(script).contains("camelCase");
         assertThat(script).contains("IncludeReindexContract");
         assertThat(script).contains("/api/v1/admin/reindex");

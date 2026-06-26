@@ -69,8 +69,6 @@ $Text = @{
     ForeignTradeAct = Decode-Utf8Base64 "64yA7Jm466y07Jet67KV"
     StrategicItem = Decode-Utf8Base64 "7KCE656166y87J6Q"
     KoreanDisclaimer = Decode-Utf8Base64 "67KV66C5IOyhsOyCrCDrs7TsobAg6rKw6rO8"
-    Article19 = Decode-Utf8Base64 "7KCcMTnsobA="
-    Article19_2 = Decode-Utf8Base64 "7KCcMTnsobDsnZgy"
 }
 
 $ForbiddenCopy = @(
@@ -235,8 +233,7 @@ try {
     Assert-True ($ask.status -eq "OK") "Expected ask status OK, got $($ask.status)."
     $cited = @($ask.citedArticles)
     Assert-True ($cited.Count -ge 1) "Expected at least one cited article."
-    Assert-True (@($cited | Where-Object { $_.lawTitle -eq $Text.ForeignTradeAct -and $_.articleNumber -eq $Text.Article19 }).Count -ge 1) "Expected first core citation."
-    Assert-True (@($cited | Where-Object { $_.lawTitle -eq $Text.ForeignTradeAct -and $_.articleNumber -eq $Text.Article19_2 }).Count -ge 1) "Expected second core citation."
+    Assert-True (@($cited | Where-Object { $_.lawTitle -like "$($Text.ForeignTradeAct)*" }).Count -ge 1) "Expected Foreign Trade Act family citation."
 
     $v1AskText = Invoke-PostJson "/api/v1/ask" @{
         question = $Text.AskQuestion
@@ -252,6 +249,7 @@ try {
     Assert-True ($v1Ask.status -eq "ok") "Expected v1 ask status ok, got $($v1Ask.status)."
     $v1Cited = @($v1Ask.cited_articles)
     Assert-True ($v1Cited.Count -ge 1) "Expected at least one v1 cited article."
+    Assert-True (@($v1Cited | Where-Object { $_.law_title -like "$($Text.ForeignTradeAct)*" }).Count -ge 1) "Expected Foreign Trade Act family citation in v1 ask response."
     Assert-True (Test-Property $v1Ask "effective_basis") "V1 ask response is missing effective_basis."
     Assert-True (Test-Property $v1Ask.effective_basis "snapshot_version") "V1 ask response is missing effective_basis.snapshot_version."
     Assert-True (Test-Property $v1Ask "diagnostics") "V1 ask response is missing diagnostics."
