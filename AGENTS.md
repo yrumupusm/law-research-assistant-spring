@@ -52,6 +52,18 @@ AskController
 3. Add or update fixed evaluation questions in `harness/questions.json` when a user-visible answer behavior changes.
 4. Add focused tests for new invariants before broad refactors.
 5. Verify with the narrowest useful test, then with `mvn test` when the change touches shared behavior.
+6. Check `git status --short` before and after edits so local-only files, secrets, generated output, and unrelated user changes stay out of commits.
+7. Commit each verified, meaningful unit of work separately; avoid broad "misc" commits that mix docs, tests, behavior, formatting, and generated artifacts.
+8. Push after a milestone is complete or when the user asks for remote backup/review; do not wait until a large batch of unrelated work has accumulated.
+9. Before pushing, review `git diff --stat`, confirm the intended files are staged, and keep `.env`, `target/`, local handoff notes, imported source repos, and private portfolio drafts untracked unless explicitly requested.
+
+## Git Workflow
+
+- Prefer small commit subjects with a clear type and scope when useful, such as `docs: add git workflow`, `test: cover citation invariant`, `fix: preserve low-confidence citations`, or `feat: export runtime evidence`.
+- Keep behavior changes and their tests in the same commit when the test proves the behavior. Keep pure documentation updates separate from runtime code changes.
+- Do not rewrite shared history or force-push unless the user explicitly asks for it.
+- If generated files are produced during verification, commit them only when they are part of the repository contract; otherwise leave them ignored or remove only the files you created.
+- If a change exposes a larger follow-up, commit the completed safe slice first and document the follow-up instead of expanding the commit scope.
 
 ## Verification Map
 

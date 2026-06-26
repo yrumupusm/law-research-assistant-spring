@@ -47,3 +47,13 @@
 - `scripts/run-scenarios.ps1` verifies status, citation count, expected citations, forbidden copy, requestId, search log correlation, and agent trace order.
 - `GET /api/admin/agent-traces?requestId=...` and the admin page requestId filter are part of the audit workflow.
 - Behavior changes that affect answers, trace order, logs, or runtime audit fields should update docs and tests together.
+
+## Version Control Rules
+
+- Treat Git history as part of the project evidence: each commit should describe one verified, meaningful unit of work.
+- Check `git status --short` before editing, before committing, and before pushing.
+- Commit behavior changes with the focused tests or harness updates that prove them.
+- Keep documentation-only updates separate from runtime behavior changes unless the documentation is part of the same contract change.
+- Do not stage secrets, `.env`, `target/`, local handoff notes, imported law-source repositories, or private portfolio/application drafts unless the user explicitly asks for them.
+- Push after a tested milestone or when remote review/backup is needed; avoid saving many unrelated completed changes for one final push.
+- Do not rewrite remote history or force-push for this application repository unless the user explicitly requests it.
