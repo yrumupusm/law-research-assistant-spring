@@ -5,7 +5,6 @@ build/
 out/
 .env
 handoff.md
-local-portfolio/
 devlegalize-kr/
 *.log
 *.db
