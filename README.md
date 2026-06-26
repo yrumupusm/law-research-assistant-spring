@@ -88,6 +88,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 start
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 status
 ```
 
+If Maven is not on PATH, pass the local Maven launcher explicitly:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 start -MavenPath C:\dev\apache-maven-3.9.9\bin\mvn.cmd
+```
+
 중지:
 
 ```powershell

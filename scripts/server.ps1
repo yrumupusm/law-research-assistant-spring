@@ -1,7 +1,8 @@
 param(
     [Parameter(Position = 0)]
     [ValidateSet("start", "stop", "restart", "status")]
-    [string]$Action = "start"
+    [string]$Action = "start",
+    [string]$MavenPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,7 +13,6 @@ $EnvFile = Join-Path $ProjectRoot ".env"
 $PidFile = Join-Path $TargetDir "server.pid"
 $OutLog = Join-Path $TargetDir "bootrun.out.log"
 $ErrLog = Join-Path $TargetDir "bootrun.err.log"
-$MavenCmd = if ($env:MAVEN_CMD) { $env:MAVEN_CMD } else { "mvn.cmd" }
 
 function Get-EnvFileValue {
     param(
@@ -135,6 +135,23 @@ function ConvertTo-PowerShellSingleQuotedLiteral {
     return "'" + ($Value -replace "'", "''") + "'"
 }
 
+function Resolve-MavenCommand {
+    if (-not [string]::IsNullOrWhiteSpace($MavenPath) -and (Test-Path -LiteralPath $MavenPath)) {
+        return (Resolve-Path -LiteralPath $MavenPath).Path
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:MAVEN_CMD) -and (Test-Path -LiteralPath $env:MAVEN_CMD)) {
+        return (Resolve-Path -LiteralPath $env:MAVEN_CMD).Path
+    }
+
+    $mvn = Get-Command "mvn.cmd" -ErrorAction SilentlyContinue
+    if ($null -ne $mvn) {
+        return $mvn.Source
+    }
+
+    throw "Maven command not found. Set -MavenPath, set MAVEN_CMD, or install mvn.cmd on PATH."
+}
+
 function Copy-SanitizedEnvironment {
     param([System.Diagnostics.ProcessStartInfo]$StartInfo)
 
@@ -213,9 +230,7 @@ function Start-Server {
 
     Clear-PidFile
 
-    if (-not (Test-Path -LiteralPath $MavenCmd)) {
-        throw "Maven command not found: $MavenCmd"
-    }
+    $MavenCmd = Resolve-MavenCommand
 
     $projectRootLiteral = ConvertTo-PowerShellSingleQuotedLiteral -Value $ProjectRoot
     $mavenCmdLiteral = ConvertTo-PowerShellSingleQuotedLiteral -Value $MavenCmd

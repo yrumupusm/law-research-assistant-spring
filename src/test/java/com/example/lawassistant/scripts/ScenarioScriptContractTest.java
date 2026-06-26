@@ -147,6 +147,10 @@ class ScenarioScriptContractTest {
         assertThat(script).contains("$StatusUrl = \"$BaseUrl/api/admin/status\"");
         assertThat(script).contains("$HealthzUrl = \"$BaseUrl/healthz\"");
         assertThat(script).contains("$V1HealthUrl = \"$BaseUrl/api/v1/health\"");
+        assertThat(script).contains("[string]$MavenPath");
+        assertThat(script).contains("Resolve-MavenCommand");
+        assertThat(script).contains("Get-Command \"mvn.cmd\"");
+        assertThat(script).contains("Set -MavenPath, set MAVEN_CMD, or install mvn.cmd on PATH");
         assertThat(script).contains("healthzHttp=");
         assertThat(script).contains("v1HealthHttp=");
     }
