@@ -57,7 +57,7 @@ Before exposing an admin endpoint beyond a trusted local environment, add an aut
 
 | Risk or gap | Required next step |
 |---|---|
-| Demo summaries are not official full text | Ingest approved official source files for all eight selected laws |
+| Demo summaries are not official full text | Ingest approved full-text source files for all eight selected laws; validate source ownership and update policy |
 | Source freshness can drift | Establish a source owner, update cadence, review, and reindex procedure |
 | Default storage is ephemeral | Deploy and test PostgreSQL plus Qdrant |
 | Admin endpoints lack an auth boundary | Introduce authentication, authorization, and operator roles before wider access |
