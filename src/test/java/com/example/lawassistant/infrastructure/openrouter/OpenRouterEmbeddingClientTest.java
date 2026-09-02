@@ -6,6 +6,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
@@ -139,6 +141,35 @@ class OpenRouterEmbeddingClientTest {
         assertThatThrownBy(() -> client.embedAll(List.of("alpha")))
                 .isInstanceOf(OpenRouterClientException.class)
                 .hasMessageContaining("did not contain data");
+        server.verify();
+    }
+
+    @Test
+    void embedAllExposesOnlySafeHttpFailureCode() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        OpenRouterEmbeddingClient client = new OpenRouterEmbeddingClient(
+                builder,
+                "https://openrouter.ai/api/v1",
+                "test-key",
+                "baai/bge-m3",
+                3,
+                4000,
+                5
+        );
+
+        server.expect(requestTo("https://openrouter.ai/api/v1/embeddings"))
+                .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"error\":\"provider detail must not leave the client\"}"));
+
+        assertThatThrownBy(() -> client.embedAll(List.of("alpha")))
+                .isInstanceOf(OpenRouterClientException.class)
+                .satisfies(exception -> {
+                    OpenRouterClientException failure = (OpenRouterClientException) exception;
+                    assertThat(failure.failureCode()).isEqualTo("provider_http_429");
+                    assertThat(failure.getMessage()).doesNotContain("provider detail");
+                });
         server.verify();
     }
 }

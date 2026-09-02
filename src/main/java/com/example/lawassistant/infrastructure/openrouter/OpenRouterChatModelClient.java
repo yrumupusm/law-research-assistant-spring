@@ -154,7 +154,11 @@ public class OpenRouterChatModelClient implements ChatModelClient {
                     .retrieve()
                     .body(JsonNode.class);
         } catch (RestClientException ex) {
-            throw new OpenRouterClientException("OpenRouter chat request failed.", ex);
+            throw new OpenRouterClientException(
+                    "OpenRouter chat request failed.",
+                    OpenRouterFailureCode.from(ex),
+                    ex
+            );
         }
     }
 

@@ -4,6 +4,7 @@ import com.example.lawassistant.dto.ProviderSmokeTestResponse;
 import com.example.lawassistant.infrastructure.embedding.EmbeddingClient;
 import com.example.lawassistant.infrastructure.llm.ChatMessage;
 import com.example.lawassistant.infrastructure.llm.ChatModelClient;
+import com.example.lawassistant.infrastructure.openrouter.OpenRouterClientException;
 import com.example.lawassistant.infrastructure.openrouter.OpenRouterResponseFormatException;
 import com.example.lawassistant.infrastructure.rerank.RerankCandidate;
 import com.example.lawassistant.infrastructure.rerank.RerankerClient;
@@ -103,6 +104,9 @@ public class ProviderSmokeTestService {
     private String providerErrorCode(String providerRole, RuntimeException ex) {
         if ("llm".equals(providerRole) && ex instanceof OpenRouterResponseFormatException) {
             return "llm_response_format_failed";
+        }
+        if (ex instanceof OpenRouterClientException openRouterException) {
+            return providerRole + "_" + openRouterException.failureCode();
         }
         return providerRole + "_provider_failed";
     }

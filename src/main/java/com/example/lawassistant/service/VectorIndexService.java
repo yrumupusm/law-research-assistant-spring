@@ -2,6 +2,7 @@ package com.example.lawassistant.service;
 
 import com.example.lawassistant.domain.entity.Article;
 import com.example.lawassistant.infrastructure.embedding.EmbeddingClient;
+import com.example.lawassistant.infrastructure.openrouter.OpenRouterClientException;
 import com.example.lawassistant.infrastructure.vector.VectorDocument;
 import com.example.lawassistant.infrastructure.vector.VectorSearchClient;
 import com.example.lawassistant.repository.ArticleRepository;
@@ -83,7 +84,7 @@ public class VectorIndexService implements ApplicationRunner {
                         start,
                         end,
                         batch.size(),
-                        batchFailure.toString()
+                        failureCode(batchFailure)
                 );
                 indexed += retryIndividually(batch, failedArticleIds);
             }
@@ -102,7 +103,7 @@ public class VectorIndexService implements ApplicationRunner {
                 log.warn(
                         "Vector single-article indexing failed. articleId={} reason={}",
                         article.getId(),
-                        singleFailure.toString()
+                        failureCode(singleFailure)
                 );
                 failedArticleIds.add(article.getId());
             }
@@ -145,6 +146,13 @@ public class VectorIndexService implements ApplicationRunner {
 
     public int indexedCount() {
         return indexedCount.get();
+    }
+
+    private String failureCode(RuntimeException exception) {
+        if (exception instanceof OpenRouterClientException openRouterException) {
+            return openRouterException.failureCode();
+        }
+        return "provider_request_failed";
     }
 
     public String toIndexText(Article article) {

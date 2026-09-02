@@ -114,7 +114,11 @@ public class OpenRouterEmbeddingClient implements EmbeddingClient {
                     .retrieve()
                     .body(JsonNode.class);
         } catch (RestClientException ex) {
-            throw new OpenRouterClientException("OpenRouter embedding request failed.", ex);
+            throw new OpenRouterClientException(
+                    "OpenRouter embedding request failed.",
+                    OpenRouterFailureCode.from(ex),
+                    ex
+            );
         }
     }
 

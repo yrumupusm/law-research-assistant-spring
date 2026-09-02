@@ -6,6 +6,7 @@ import com.example.lawassistant.infrastructure.embedding.EmbeddingClient;
 import com.example.lawassistant.infrastructure.llm.ChatMessage;
 import com.example.lawassistant.infrastructure.llm.ChatModelClient;
 import com.example.lawassistant.infrastructure.openrouter.OpenRouterResponseFormatException;
+import com.example.lawassistant.infrastructure.openrouter.OpenRouterClientException;
 import com.example.lawassistant.infrastructure.rerank.RerankCandidate;
 import com.example.lawassistant.infrastructure.rerank.RerankerClient;
 import java.util.List;
@@ -88,6 +89,28 @@ class ProviderSmokeTestServiceTest {
         assertThat(response.rerankerStatus()).isEqualTo("ok");
     }
 
+    @Test
+    void runReportsSafeProviderHttpFailureCode() {
+        ProviderSmokeTestService service = new ProviderSmokeTestService(
+                okChat(),
+                failingEmbedding(new OpenRouterClientException(
+                        "OpenRouter embedding request failed.",
+                        "provider_http_429",
+                        new IllegalStateException("rate limit details")
+                )),
+                okReranker(),
+                "mock",
+                "openrouter",
+                "mock"
+        );
+
+        var response = service.run();
+
+        assertThat(response.embeddingStatus()).isEqualTo("failed");
+        assertThat(response.embeddingError()).isEqualTo("embedding_provider_http_429");
+        assertThat(response.embeddingError()).doesNotContain("rate limit details");
+    }
+
     private ChatModelClient okChat() {
         return (messages, schemaName) -> Map.of("status", "OK", "message", "provider ready");
     }
@@ -113,15 +136,19 @@ class ProviderSmokeTestServiceTest {
     }
 
     private EmbeddingClient failingEmbedding() {
+        return failingEmbedding(new RuntimeException("embedding unavailable"));
+    }
+
+    private EmbeddingClient failingEmbedding(RuntimeException exception) {
         return new EmbeddingClient() {
             @Override
             public List<Double> embed(String text) {
-                throw new RuntimeException("embedding unavailable");
+                throw exception;
             }
 
             @Override
             public List<List<Double>> embedAll(List<String> texts) {
-                throw new RuntimeException("embedding unavailable");
+                throw exception;
             }
         };
     }
