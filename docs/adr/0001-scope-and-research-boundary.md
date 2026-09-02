@@ -1,17 +1,19 @@
-# ADR 0001: Limit the service to cited legal research support in a selected law domain
+# ADR 0001: 선택한 법령 도메인의 인용 기반 조사 지원으로 서비스 범위를 제한
 
-**Status:** Accepted
+**상태:** 채택
 
-## Context
+## 상황
 
-The application can retrieve and summarize legal-source material, but its corpus is deliberately limited and legal questions often depend on facts outside the text of an individual article. Presenting its output as a final legality, permission, or compliance decision would overstate what the system can establish.
+법률 관련 질문은 그럴듯하지만 근거 없는 답변이 특히 위험합니다. 전체 법령과 모든 법률 자문 문제를 한 번에 다루려 하면 원본 최신성, 관할 범위, 사실관계, 해석의 한계를 통제하기 어렵습니다.
 
-## Decision
+## 결정
 
-The product is an internal research-support service for the selected eight-law domain. Responses must be grounded in retrieved articles and must avoid a final legal conclusion. Where facts or evidence are insufficient, the service returns `INSUFFICIENT_INFO` or a follow-up question.
+서비스는 선택한 법령 도메인에서 조문을 찾아 인용 근거와 함께 조사 보조 결과를 제공하는 범위로 제한합니다. 법적 조언, 적법성·허용 여부·준수 여부의 최종 판단은 제공하지 않습니다.
 
-## Consequences
+사실관계가 부족하거나 검색 근거가 충분하지 않은 경우에는 `INSUFFICIENT_INFO` 또는 추가 질문을 반환합니다.
 
-- The UI and answer policy must frame results as research assistance and retain cited source material.
-- Expanding to another law domain requires a defined corpus, evaluation questions, and source-update process.
-- This boundary permits useful internal research while keeping a human responsible for legal interpretation and decisions.
+## 결과
+
+- 제품의 경계가 명확해지고 테스트 가능한 답변 계약을 만들 수 있습니다.
+- 답변은 사용자의 조사 출발점이며, 전문 법률 검토를 대체하지 않습니다.
+- 새로운 법령 도메인을 추가할 때는 원본, 적재, 평가 질문, 품질 기준을 함께 추가해야 합니다.

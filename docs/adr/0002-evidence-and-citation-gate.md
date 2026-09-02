@@ -1,17 +1,22 @@
-# ADR 0002: Gate answers on retrieved evidence and citations
+# ADR 0002: 답변 전에 근거와 인용을 검증
 
-**Status:** Accepted
+**상태:** 채택
 
-## Context
+## 상황
 
-An LLM can produce plausible legal names, article numbers, or conclusions that are not supported by the available source material. A legal-research product must make unsupported output observable and reject it before returning a successful answer.
+검색 결과가 있더라도 답변이 실제 조문을 인용하지 않거나, 검색 근거보다 더 강한 법률 결론을 말할 수 있습니다. 이런 실패는 사용자에게 빈 답변보다 더 위험할 수 있습니다.
 
-## Decision
+## 결정
 
-The request pipeline keeps retrieval, evidence validation, answer writing, and criticism as distinct stages. `OK` requires at least one cited article. A `LOW_CONFIDENCE` result that has retrieved or hydrated evidence also requires a citation. The critic rejects missing citations and response-quality violations.
+답변은 `EvidenceValidatorAgent`와 `CriticAgent` 검사를 통과해야 합니다.
 
-## Consequences
+- `status=OK`에는 하나 이상의 `citedArticles`가 있어야 합니다.
+- 검색 또는 원문 보강 결과가 있는 `LOW_CONFIDENCE`에도 하나 이상의 `citedArticles`가 있어야 합니다.
+- 근거 없는 법령명, 조문 번호, 법률 결론은 허용하지 않습니다.
+- 인용 누락 또는 품질 검사 실패는 `missing_citation`, `response_quality_failed` 같은 안전한 오류 코드로 반환합니다.
 
-- The product may decline more questions than a generic chatbot; this is intentional.
-- Tests and scenario checks must preserve citation, forbidden-copy, request-ID, and trace-order assertions.
-- New answer-generation behavior cannot bypass the critic gate.
+## 결과
+
+- 정상 응답의 품질 하한이 명확해집니다.
+- 답변 생성 경로에서 비평 단계를 건너뛸 수 없습니다.
+- 제공자·검색·파싱 실패를 빈 검색 결과로 숨기지 않고 명시적으로 처리해야 합니다.

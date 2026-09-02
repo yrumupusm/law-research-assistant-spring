@@ -1,68 +1,74 @@
 # arc42 Lite
 
-This is the smallest useful subset of arc42 for this repository. It intentionally avoids duplicating API examples and detailed class-level documentation.
+이 문서는 초보 개발자도 현재 시스템의 목적, 경계, 구조, 품질 기준을 빠르게 이해할 수 있도록 arc42 템플릿에서 필요한 항목만 선택한 요약 문서입니다.
 
-## 1. Goals and Scope
+## 1. 목표와 품질 요구사항
 
-The application is an internal legal-research support service for a limited set of Korean laws in the trade-security, defence, and technology-protection domain.
+법령 조사 도우미는 선택된 한국 법령 범위 안에서 질문과 관련된 조문을 찾고, 검증 가능한 인용 근거와 함께 조사 보조 결과를 제공합니다.
 
-It must return the evidence used for an answer, disclose the source snapshot, and decline to make an answer when the available evidence is insufficient. It is not a legal-advice, compliance-approval, or nationwide-law-search product.
+가장 중요한 품질 기준은 다음과 같습니다.
 
-The current reference corpus is a development/demo corpus. Replacing it with official source material for the chosen eight laws is a required milestone before internal operational use.
+- 근거 없는 법령명·조문 번호·법률 결론을 만들지 않습니다.
+- `OK` 응답에는 인용 조문이 반드시 포함됩니다.
+- 근거가 부족하면 답변을 꾸며내지 않고 `INSUFFICIENT_INFO` 또는 추가 질문을 반환합니다.
+- 답변의 근거는 원본 파일 경로, 색인 시각, 스냅샷 버전, 원본 커밋으로 추적할 수 있습니다.
+- 요청 단위의 로그와 에이전트 추적은 동일한 `requestId`로 연결됩니다.
 
-## 2. Constraints
+## 2. 제약과 경계
 
-- Java 17 and Spring Boot 3.3 are the application platform.
-- Provider implementations are behind interfaces; provider names, URLs, models, and keys remain configuration, never source code.
-- Development defaults use H2, in-memory vectors, and mock providers.
-- Official or otherwise approved source material must be versioned, traceable, and ingested as local Markdown files.
-- User questions are not stored verbatim in operational logs.
+- 서비스는 법률 자문이나 법적 판단을 제공하지 않습니다.
+- 현재 지원 범위는 `legalize-kr` 원본에서 선택한 8개 법령입니다.
+- 기본 데이터는 개발·데모용 소규모 시드이며, 실제 조문 사용을 위해서는 원본 저장소에서 전체 조문을 적재해야 합니다.
+- 외부 AI, 임베딩, 벡터 검색, 재순위화 기능은 모두 제공자 인터페이스 뒤에 있으며 설정에 따라 선택적으로 사용됩니다.
+- API 요청은 알 수 없는 JSON 필드, 빈 질문, 4,000자를 초과하는 질문, 잘못된 `asOf` 날짜를 `400 Bad Request`로 거부합니다.
 
-## 3. Quality Goals
+## 3. 해결 전략
 
-| Priority | Quality goal | How it is enforced today |
-|---|---|---|
-| 1 | Grounded answers | Citation and evidence gates; critic check; insufficient-info response |
-| 2 | Auditability | Shared request ID, search logs, agent traces, snapshot/source basis |
-| 3 | Source freshness | Snapshot version and effective-date filtering; source-sync and ingestion path |
-| 4 | Safe failure | Safe API error codes; no provider exception text in responses |
-| 5 | Operability | Admin status, ingestion history, provider smoke test, scenario scripts |
+질문은 고정된 파이프라인을 통과합니다.
 
-## 4. Solution Strategy
+```text
+AskController
+-> AskOrchestratorService
+-> QueryAnalyzerAgent
+-> RetrievalAgent
+-> EvidenceValidatorAgent
+-> AnswerWriterAgent
+-> CriticAgent
+-> SearchLogAgent
+```
 
-The request pipeline separates question analysis, retrieval, evidence validation, answer composition, final criticism, and audit logging. Keyword and vector retrieval are merged and may be reranked. The answer writer may use an LLM, but retrieved evidence and the critic gate control the final result.
+검색 결과는 근거 검증을 통과해야 답변 작성 단계로 전달됩니다. 비평 단계는 인용 누락, 금지된 복사, 응답 품질 문제를 검사합니다. 이 검사를 통과하지 못한 결과를 정상 답변으로 반환하지 않습니다.
 
-The system supports a local Markdown ingestion path, optionally preceded by a fast-forward-only Git source synchronization. Every ingestion creates a snapshot and indexes the resulting articles.
+## 4. 런타임 구조
 
-See [the C4 overview](architecture/c4.md) for the structural view.
+시스템은 Spring Boot API, 조사 파이프라인, 관계형 데이터베이스, 선택형 Qdrant 벡터 저장소, 로컬 법령 원본으로 구성됩니다. 상세 구조는 [C4 아키텍처 개요](architecture/c4.md)에서 확인할 수 있습니다.
 
-## 5. Runtime Scenario
+법령 원본을 적재할 때 파일 경로와 Git 커밋을 함께 기록합니다. 따라서 답변의 인용은 어느 시점의 어떤 원본 파일에서 왔는지 확인할 수 있습니다.
 
-1. A caller submits a validated question and optional `asOf` date.
-2. The query analyzer classifies the question and derives retrieval terms.
-3. Retrieval selects effective articles using keyword and, when appropriate, vector search.
-4. Evidence validation rejects missing or weak evidence as appropriate.
-5. The answer writer composes a cited research answer; the critic checks citation and response-quality rules.
-6. The response, search log, and agent trace receive the same request ID.
+## 5. 배포와 운영
 
-Failures at any stage produce an auditable `FAILED` response with a safe error code. A lack of evidence produces `INSUFFICIENT_INFO`, rather than an invented legal conclusion.
+- 개발 환경에서는 H2로 빠르게 실행할 수 있습니다.
+- 지속 데이터가 필요한 환경에서는 PostgreSQL과 선택형 Qdrant를 Docker Compose로 실행할 수 있습니다.
+- `/api/admin/status`는 현재 법령·조문·벡터 수와 마지막 적재 시각을 보여 줍니다.
+- `/api/admin/sync-source`는 원본 저장소 동기화와 적재를 수행합니다. 동기화가 실패하면 이전 색인을 지우지 않고 실패를 명확히 반환합니다.
+- `/api/admin/refresh-index`는 이미 적재된 조문의 색인을 갱신합니다.
 
-## 6. Deployment and Operations
+실행 방법과 점검 절차는 [실행 및 운영 안내](runbook.md)를 참고합니다.
 
-For local development and tests, the default configuration is intentionally lightweight. For an internal operational environment, use PostgreSQL and Qdrant, configure real providers only when needed, keep secrets outside the repository, and run readiness, provider-smoke, runtime, and scenario verification.
+## 6. 위험과 대응
 
-Before exposing an admin endpoint beyond a trusted local environment, add an authentication and authorization boundary. This is not currently supplied by the application.
+| 위험 | 대응 |
+| --- | --- |
+| 근거 없는 답변 | 인용 필수 조건, 근거 검증, 비평 단계로 차단 |
+| 원본 변경으로 인한 재현 불가 | 스냅샷 버전, 적재 시각, 파일 경로, 원본 커밋 기록 |
+| AI 제공자 실패를 빈 결과로 은폐 | 안전한 오류 코드 또는 명시적 부족 정보 상태 반환 |
+| 데이터가 너무 적어 검색 품질 저하 | 원본 법령 전체 조문을 적재하고 고정 질문으로 회귀 검증 |
+| 감사 로그에서 요청 연결 불가 | 응답, 검색 로그, 에이전트 추적에 동일 `requestId` 사용 |
 
-## 7. Risks and Next Milestones
+## 7. 주요 결정
 
-| Risk or gap | Required next step |
-|---|---|
-| Demo summaries are not official full text | Ingest approved full-text source files for all eight selected laws; validate source ownership and update policy |
-| Source freshness can drift | Establish a source owner, update cadence, review, and reindex procedure |
-| Default storage is ephemeral | Deploy and test PostgreSQL plus Qdrant |
-| Admin endpoints lack an auth boundary | Introduce authentication, authorization, and operator roles before wider access |
-| Retrieval quality is proven mainly by fixed scenarios | Build a reviewed real-work question set and measure citation accuracy and abstention |
+중요한 설계 선택과 이유는 [아키텍처 결정 기록(ADR)](adr/README.md)에 기록합니다. 처음에는 다음 세 가지를 유지합니다.
 
-## Related Decisions
-
-The decision records in [docs/adr](adr/README.md) explain the few choices that materially constrain future implementation work.
+1. 범위를 선택된 법령의 인용 기반 조사 보조로 제한합니다.
+2. 답변 전에 근거와 인용을 검증합니다.
+3. 로컬 법령 원본의 버전 정보를 적재 결과와 답변 근거에 기록합니다.

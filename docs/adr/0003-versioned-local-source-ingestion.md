@@ -1,17 +1,24 @@
-# ADR 0003: Use versioned local source ingestion and snapshot evidence
+# ADR 0003: 버전이 기록된 로컬 원본에서 법령 적재
 
-**Status:** Accepted
+**상태:** 채택
 
-## Context
+## 상황
 
-Legal answers require more than article text: reviewers need to know which source version, ingestion time, effective date, and source path supplied the evidence. A stable local format is also needed to validate parsing before source material reaches the application.
+법령 원문은 시간이 지나며 바뀝니다. 답변에 인용이 있어도 어느 원본 파일의 어느 시점 내용을 사용했는지 알 수 없으면 결과를 재현하거나 검토하기 어렵습니다.
 
-## Decision
+## 결정
 
-The application ingests approved local Markdown law files, optionally after a fast-forward-only Git synchronization. Each ingestion creates a `SnapshotVersion`; law and article records retain source and effective-date metadata. When ingestion follows Git synchronization, the source commit is retained as `sourceVersion`. Responses expose `snapshotVersion`, `indexedAt`, `sourcePath`, and (when available) `sourceVersion` as answer-basis data.
+`legalize-kr` 로컬 Git 작업 트리를 법령 원본으로 사용하고, 적재 시 다음 정보를 저장합니다.
 
-## Consequences
+- `snapshotVersion`
+- `indexedAt`
+- `sourcePath`
+- `sourceVersion`(원본 Git 커밋)
 
-- The source repository and its Markdown convention become an operational contract.
-- Official source acquisition and conversion occur before ingestion; the application does not treat the current demo seed as authoritative law text.
-- Source owners must define update cadence, review, and reindex procedures before internal operational use.
+관리자 동기화는 원본을 먼저 안전하게 갱신한 뒤 적재합니다. 동기화 또는 적재에 실패하면 기존 색인을 지우지 않고 실패를 반환합니다.
+
+## 결과
+
+- 답변의 인용 근거를 특정 원본 파일과 커밋으로 추적할 수 있습니다.
+- 적재 결과는 원본 저장소 상태에 의존하므로 운영 환경에서 원본 경로와 Git 권한을 관리해야 합니다.
+- 원본 형식 변경, Git 충돌, 동기화 실패를 명시적으로 관찰하고 처리해야 합니다.
