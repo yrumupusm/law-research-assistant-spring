@@ -231,7 +231,7 @@ Provider smoke test는 설정된 LLM, embedding, reranker provider를 각각 1�
 
 ## 검증
 
-최종 포트폴리오 검증은 아래 순서가 기준입니다. 서버 시작/재시작은 사용자가 직접 수행하고, 검증 스크립트는 실행 중인 서버만 확인합니다.
+운영 전 최종 검증은 아래 순서가 기준입니다. 서버 시작/재시작은 사용자가 직접 수행하고, 검증 스크립트는 실행 중인 서버만 확인합니다.
 
 1. 서버 없이 설정과 준비물을 먼저 확인합니다.
 
@@ -258,7 +258,7 @@ target/scenario-responses/scenario-summary.json
 target/evidence-report.md
 ```
 
-`VECTOR_PROVIDER=inmemory` 또는 `RERANKER_PROVIDER=mock`이면 검증은 가능하지만 Qdrant/Cohere 실연동 증거는 남지 않습니다. 최종 포트폴리오에서 해당 provider까지 강조하려면 `.env`에서 `VECTOR_PROVIDER=qdrant`, `RERANKER_PROVIDER=cohere`로 전환한 뒤 다음처럼 readiness를 더 엄격하게 확인합니다.
+`VECTOR_PROVIDER=inmemory` 또는 `RERANKER_PROVIDER=mock`이면 검증은 가능하지만 Qdrant/Cohere 실연동 증거는 남지 않습니다. Qdrant/Cohere 실연동까지 검증하려면 `.env`에서 `VECTOR_PROVIDER=qdrant`, `RERANKER_PROVIDER=cohere`로 전환한 뒤 다음처럼 readiness를 더 엄격하게 확인합니다.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-readiness.ps1 -RequireExternalProviders -RequireQdrant -RequireCohere
@@ -346,9 +346,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-runtime.ps1
 - 운영 로그에는 질문 원문을 남기지 않고 `ask_complete` JSON payload의 hash/길이/latency/retrieval stats만 저장
 - HTTP 요청 로그에는 query string과 request body를 남기지 않고 method/path/status/elapsedMs만 저장
 
-## 면접 설명 포인트
-
-- 기존 Flask 기반 법령 조사 흐름을 Spring Boot의 Controller-Service-Repository 구조로 재구성
-- 생성형 AI 호출을 비즈니스 로직에 직접 섞지 않고 provider interface 뒤로 분리
-- RAG 품질을 citation invariant, scenario harness, search log, agent trace, 안전한 완료 로그로 검증
 - 전체 법령 DB 구축보다 제한된 도메인에서 agent orchestration, embedding retrieval, 감사 가능성을 설명하는 데 집중
