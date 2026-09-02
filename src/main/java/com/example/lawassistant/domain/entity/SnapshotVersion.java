@@ -44,10 +44,21 @@ public class SnapshotVersion {
     }
 
     public SnapshotVersion(String version, SnapshotStatus status, LocalDateTime indexedAt, String sourcePath) {
+        this(version, status, indexedAt, sourcePath, null);
+    }
+
+    public SnapshotVersion(
+            String version,
+            SnapshotStatus status,
+            LocalDateTime indexedAt,
+            String sourcePath,
+            String sourceVersion
+    ) {
         this.version = version;
         this.status = status;
         this.indexedAt = indexedAt;
         this.sourcePath = sourcePath;
+        this.sourceVersion = sourceVersion;
     }
 
     public Long getId() {
@@ -72,5 +83,9 @@ public class SnapshotVersion {
 
     public String getSourcePath() {
         return sourcePath;
+    }
+
+    public String getSourceVersion() {
+        return sourceVersion;
     }
 }

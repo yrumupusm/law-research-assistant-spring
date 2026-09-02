@@ -63,7 +63,11 @@ public class SourceSyncService {
 
         IngestLocalResponse ingestion = null;
         if (ingestAfterSync) {
-            var result = localLawIngestionService.ingest(target, request == null ? null : request.snapshotPrefix());
+            var result = localLawIngestionService.ingest(
+                    target,
+                    request == null ? null : request.snapshotPrefix(),
+                    commitHash.strip()
+            );
             ingestion = new IngestLocalResponse(
                     result.run().getId(),
                     result.run().getStatus(),

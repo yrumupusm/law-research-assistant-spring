@@ -7,10 +7,20 @@ public record EffectiveBasisDto(
         String snapshotVersion,
         LocalDateTime indexedAt,
         String sourcePath,
+        String sourceVersion,
         LocalDate asOf
 ) {
 
     public EffectiveBasisDto(String snapshotVersion, LocalDateTime indexedAt, LocalDate asOf) {
-        this(snapshotVersion, indexedAt, null, asOf);
+        this(snapshotVersion, indexedAt, null, null, asOf);
+    }
+
+    public EffectiveBasisDto(
+            String snapshotVersion,
+            LocalDateTime indexedAt,
+            String sourcePath,
+            LocalDate asOf
+    ) {
+        this(snapshotVersion, indexedAt, sourcePath, null, asOf);
     }
 }

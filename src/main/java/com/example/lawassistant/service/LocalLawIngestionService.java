@@ -70,6 +70,15 @@ public class LocalLawIngestionService {
 
     @Transactional
     public LocalIngestionResult ingest(Path requestedSourceDir, String requestedSnapshotPrefix) {
+        return ingest(requestedSourceDir, requestedSnapshotPrefix, null);
+    }
+
+    @Transactional
+    public LocalIngestionResult ingest(
+            Path requestedSourceDir,
+            String requestedSnapshotPrefix,
+            String sourceVersion
+    ) {
         Path sourceDir = requestedSourceDir != null ? requestedSourceDir : defaultSourceDir;
         if (sourceDir == null) {
             throw new IllegalArgumentException("sourceDir is required when app.ingestion.source-dir is not configured.");
@@ -83,7 +92,8 @@ public class LocalLawIngestionService {
                 buildSnapshotVersion(requestedSnapshotPrefix),
                 SnapshotStatus.INDEXED,
                 LocalDateTime.now(),
-                root.toString()
+                root.toString(),
+                blankToNull(sourceVersion)
         ));
         IngestionRun run = ingestionRunRepository.save(IngestionRun.start(snapshot));
 
@@ -211,6 +221,13 @@ public class LocalLawIngestionService {
                 ? defaultSnapshotPrefix
                 : requestedSnapshotPrefix.strip();
         return prefix + "-" + LocalDateTime.now().format(SNAPSHOT_TIME);
+    }
+
+    private String blankToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.strip();
     }
 
     private String buildSlug(String title, String lawType) {

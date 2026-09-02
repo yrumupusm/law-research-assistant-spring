@@ -211,6 +211,7 @@ public class LawQueryService {
                 law.getSnapshotVersion().getVersion(),
                 law.getSnapshotVersion().getIndexedAt(),
                 law.getSnapshotVersion().getSourcePath(),
+                law.getSnapshotVersion().getSourceVersion(),
                 null
         );
     }

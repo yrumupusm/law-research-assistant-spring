@@ -84,6 +84,7 @@ Response:
 ```
 
 `effectiveBasis.sourcePath`는 해당 스냅샷을 만든 공개 법령 원문 또는 로컬 수집 경로를 나타냅니다.
+Git 동기화 뒤 수집한 스냅샷은 `effectiveBasis.sourceVersion`에 source commit을 함께 반환합니다. 로컬 디렉터리를 직접 수집한 경우에는 이 값이 `null`일 수 있습니다.
 `effectiveBasis.asOf`는 사용자가 요청한 기준일입니다. 값이 `null`이면 현재 유효 조문 기준입니다.
 `diagnostics.requestId`는 응답, 검색 로그, agent trace를 연결하는 감사 키입니다. `hydrated`는 답변 합성 단계에 실제 조문 본문으로 전달된 조문 수입니다. `weakEvidence=1`이면 검색된 조문은 있으나 관련성 점수가 낮다는 뜻이며, 이 경우 답변은 `OK`가 아니라 `LOW_CONFIDENCE`로 제한됩니다. `evidenceTopScoreBp`는 최고 검색 점수를 0~1000 정수로 표현한 값입니다.
 실패 응답은 `status="FAILED"`와 함께 `errorMessage`에 `no_snapshot`, `query_analysis_failed`, `retrieval_failed`, `evidence_validation_failed`, `answer_generation_failed`, `missing_citation`, `response_quality_failed` 중 하나를 반환합니다. provider 예외 원문이나 사용자 질문 전문은 API 응답에 노출하지 않습니다.

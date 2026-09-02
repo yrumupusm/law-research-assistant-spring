@@ -8,7 +8,7 @@ Legal answers require more than article text: reviewers need to know which sourc
 
 ## Decision
 
-The application ingests approved local Markdown law files, optionally after a fast-forward-only Git synchronization. Each ingestion creates a `SnapshotVersion`; law and article records retain source and effective-date metadata. Responses expose `snapshotVersion`, `indexedAt`, and `sourcePath` as answer-basis data.
+The application ingests approved local Markdown law files, optionally after a fast-forward-only Git synchronization. Each ingestion creates a `SnapshotVersion`; law and article records retain source and effective-date metadata. When ingestion follows Git synchronization, the source commit is retained as `sourceVersion`. Responses expose `snapshotVersion`, `indexedAt`, `sourcePath`, and (when available) `sourceVersion` as answer-basis data.
 
 ## Consequences
 

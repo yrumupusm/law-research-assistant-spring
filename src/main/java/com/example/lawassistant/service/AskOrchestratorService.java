@@ -241,6 +241,7 @@ public class AskOrchestratorService {
                 snapshot.getVersion(),
                 snapshot.getIndexedAt(),
                 snapshot.getSourcePath(),
+                snapshot.getSourceVersion(),
                 asOf
         );
 
@@ -393,7 +394,13 @@ public class AskOrchestratorService {
                 List.of(),
                 "질문 처리 중 오류가 발생했습니다. 잠시 후 다시 시도하거나 관리자 점검 화면에서 처리 이력을 확인해 주세요.",
                 List.of("같은 문제가 반복되면 요청 ID를 기준으로 처리 단계를 확인해 주세요."),
-                new EffectiveBasisDto(snapshot.getVersion(), snapshot.getIndexedAt(), snapshot.getSourcePath(), asOf),
+                new EffectiveBasisDto(
+                        snapshot.getVersion(),
+                        snapshot.getIndexedAt(),
+                        snapshot.getSourcePath(),
+                        snapshot.getSourceVersion(),
+                        asOf
+                ),
                 0.0,
                 new SearchDiagnosticsDto(requestId, List.of(), Map.of("retrieved", 0, "cited", 0), latency),
                 DISCLAIMER,

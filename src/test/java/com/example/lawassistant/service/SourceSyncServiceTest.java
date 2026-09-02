@@ -3,16 +3,21 @@ package com.example.lawassistant.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.lawassistant.dto.SyncSourceRequest;
+import com.example.lawassistant.domain.entity.IngestionRun;
 import com.example.lawassistant.domain.entity.SyncState;
+import com.example.lawassistant.domain.enums.IngestionStatus;
 import com.example.lawassistant.infrastructure.git.GitCommandException;
 import com.example.lawassistant.infrastructure.git.GitCommandRunner;
 import com.example.lawassistant.repository.SyncStateRepository;
+import com.example.lawassistant.service.model.LocalIngestionResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -72,6 +77,33 @@ class SourceSyncServiceTest {
                 "git checkout develop",
                 "git pull --ff-only origin develop",
                 "git rev-parse HEAD"
+        );
+    }
+
+    @Test
+    void syncPassesResolvedCommitToIngestionForSnapshotProvenance() {
+        FakeGitCommandRunner git = new FakeGitCommandRunner();
+        LocalLawIngestionService ingestionService = mock(LocalLawIngestionService.class);
+        IngestionRun run = mock(IngestionRun.class);
+        when(run.getStatus()).thenReturn(IngestionStatus.SUCCEEDED);
+        when(ingestionService.ingest(any(Path.class), anyString(), anyString())).thenReturn(
+                new LocalIngestionResult(run, "law-test-001", 1, 0, 1, 2, 2)
+        );
+        SourceSyncService service = new SourceSyncService(git, ingestionService, syncStateRepository(), "", null, "main");
+
+        Path target = tempDir.resolve("laws");
+        service.sync(new SyncSourceRequest(
+                "https://example.test/legal-data.git",
+                target.toString(),
+                "main",
+                true,
+                "law-test"
+        ));
+
+        verify(ingestionService).ingest(
+                eq(target.toAbsolutePath().normalize()),
+                eq("law-test"),
+                eq("abc123")
         );
     }
 
