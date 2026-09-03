@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>법령 리서치 어시스턴트</title>
+    <title>법령 검색 어시스턴트</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <header class="app-nav">
         <div class="nav-inner">
-            <a class="brand" href="/" aria-label="법령 리서치 어시스턴트">
+            <a class="brand" href="/" aria-label="법령 검색 어시스턴트">
                 <span class="brand-mark" aria-hidden="true">
                     <svg viewBox="0 0 24 24" role="img">
                         <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5v-17Z"></path>
@@ -17,7 +17,7 @@
                         <path d="M8 6h8M8 10h7"></path>
                     </svg>
                 </span>
-                <span>법령 리서치 어시스턴트</span>
+                <span>법령 검색 어시스턴트</span>
             </a>
             <nav class="nav-links" aria-label="주요 메뉴">
                 <a href="/" class="active">질문</a>
@@ -37,8 +37,24 @@
                     <path d="M8 7h8M8 11h6"></path>
                 </svg>
             </div>
-            <h1 id="page-title">질문에 맞는 법령 근거를 찾아 정리합니다</h1>
-            <p>질문을 입력하면 관련 법령과 조문을 검색하고, 인용 근거와 추가 확인 항목을 함께 제공합니다.</p>
+            <h1 id="page-title">전략물자와 관련된 법령을 찾아보세요</h1>
+        </section>
+
+        <section class="law-scope" aria-labelledby="law-scope-title">
+            <div class="law-scope-heading">
+                <h2 id="law-scope-title">검색 대상 핵심 법령</h2>
+                <p>각 법령의 시행령과 시행규칙도 함께 검색합니다.</p>
+            </div>
+            <ul class="law-scope-list">
+                <li>대외무역법</li>
+                <li>방위사업법</li>
+                <li>관세법</li>
+                <li>외국환거래법</li>
+                <li>국가첨단전략산업 경쟁력 강화 및 보호에 관한 특별조치법</li>
+                <li>산업기술의 유출방지 및 보호에 관한 법률</li>
+                <li>국방과학기술혁신 촉진법</li>
+                <li>군수품관리법</li>
+            </ul>
         </section>
 
         <section class="query-panel" aria-labelledby="query-title">
@@ -47,7 +63,6 @@
                     <h2 id="query-title">질문 입력</h2>
                     <p>수출통제, 방산, 기술자료 제공, 전략물자 반출 등 확인하려는 상황을 자연어로 입력하세요.</p>
                 </div>
-                <div id="service-status" class="status-pill">상태 확인 중</div>
             </div>
 
             <form id="ask-form" class="ask-form">

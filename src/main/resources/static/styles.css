@@ -202,6 +202,58 @@ button:disabled {
     color: var(--muted);
 }
 
+.law-scope {
+    max-width: 880px;
+    margin: 0 auto 24px;
+    padding: 20px 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.law-scope-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.law-scope-heading h2 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.law-scope-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.law-scope-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.law-scope-list li {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #f8fbff;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
 .query-panel,
 .result-card,
 .article-card,
@@ -1044,6 +1096,20 @@ tbody tr:last-child td {
 
     .page-heading {
         flex-direction: column;
+    }
+
+    .law-scope {
+        padding: 16px;
+    }
+
+    .law-scope-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .law-scope-list {
+        grid-template-columns: 1fr;
     }
 
     .date-field,

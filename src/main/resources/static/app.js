@@ -6,7 +6,6 @@ const clearDateButton = document.querySelector("#clear-date-button");
 const charCount = document.querySelector("#char-count");
 const submitButton = document.querySelector("#submit-button");
 const resultArea = document.querySelector("#result");
-const serviceStatus = document.querySelector("#service-status");
 
 const statusLabels = {
   OK: "근거 제시",
@@ -450,22 +449,6 @@ async function submitQuestion(question) {
   }
 }
 
-async function loadServiceStatus() {
-  try {
-    const response = await fetch("/api/admin/status");
-    if (!response.ok) throw new Error("status failed");
-    const status = await response.json();
-    const healthy = status.indexStatus === "healthy";
-    serviceStatus.className = healthy ? "status-pill ok" : "status-pill error";
-    const indexed = status.indexedArticlesCount ?? 0;
-    const indexLabel = healthy ? "정상" : "색인 확인 필요";
-    serviceStatus.textContent = `${indexLabel} · 법령 ${status.lawsCount}건 · 조문 ${status.articlesCount}건 · 색인 ${indexed}건`;
-  } catch {
-    serviceStatus.className = "status-pill error";
-    serviceStatus.textContent = "API 확인 필요";
-  }
-}
-
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   submitQuestion(questionInput.value);
@@ -496,7 +479,6 @@ if (initialAsOf) {
 }
 
 updateCharCount();
-loadServiceStatus();
 
 if (initialQuestion) {
   submitQuestion(initialQuestion);
