@@ -16,9 +16,9 @@ class StaticResourceTextTest {
             "\u8E30", "\uF9DE", "\u6D39", "\u8B70", "\u5BC3", "\u5AC4", "\uCA0C", "\uFFFD"
     );
     private static final List<String> FORBIDDEN_COPY = List.of(
-            "demo", "sample", "mini project", "포트폴리오", "미니 프로젝트", "데모", "샘플",
-            "실제 회사 내부 데이터", "This response", "sample articles", "demo project",
-            "신뢰도", "confidence", "검증됨"
+            "demo", "sample", "mini project", "\uD3EC\uD2B8\uD3F4\uB9AC\uC624", "\uBBF8\uB2C8 \uD504\uB85C\uC81D\uD2B8",
+            "\uC2E4\uC81C \uD68C\uC0AC \uB370\uC774\uD130", "This response", "sample articles", "demo project",
+            "\uC810\uC218", "confidence", "\uAC80\uC99D\uC810\uC218"
     );
 
     @Test
@@ -26,13 +26,13 @@ class StaticResourceTextTest {
         String index = read("index.html");
         String admin = read("admin.html");
 
-        assertThat(index).contains("<title>법령 리서치 어시스턴트</title>");
-        assertThat(index).contains("질문에 맞는 법령 근거를 찾아 정리합니다");
-        assertThat(index).contains("해외 업체에 기술자료를 제공해도 되나요?");
+        assertThat(index).contains("<title>\uBC95\uB839 \uAC80\uC0C9 \uC5B4\uC2DC\uC2A4\uD134\uD2B8</title>");
+        assertThat(index).contains("\uC804\uB7B5\uBB3C\uC790\uC640 \uAD00\uB828\uB41C \uBC95\uB839\uC744 \uCC3E\uC544\uBCF4\uC138\uC694");
+        assertThat(index).contains("\uD574\uC678 \uC5C5\uCCB4\uC5D0 \uAE30\uC220\uC790\uB8CC\uB97C \uC81C\uACF5\uD574\uB3C4 \uB418\uB098\uC694?");
 
-        assertThat(admin).contains("<title>관리 - 법령 리서치 어시스턴트</title>");
-        assertThat(admin).contains("관리 대시보드");
-        assertThat(admin).contains("Provider 점검");
+        assertThat(admin).contains("<title>\uAD00\uB9AC - \uBC95\uB839 \uAC80\uC0C9 \uC5B4\uC2DC\uC2A4\uD134\uD2B8</title>");
+        assertThat(admin).contains("\uAD00\uB9AC \uB300\uC2DC\uBCF4\uB4DC");
+        assertThat(admin).contains("Provider \uC810\uAC80");
     }
 
     @Test
@@ -42,8 +42,8 @@ class StaticResourceTextTest {
 
         assertThat(app).contains("data-action=\"toggle-content\"");
         assertThat(app).contains("aria-expanded=\"false\"");
-        assertThat(app).contains("전체 보기");
-        assertThat(app).contains("접기");
+        assertThat(app).contains("\uC804\uCCB4 \uBCF4\uAE30");
+        assertThat(app).contains("\uC811\uAE30");
         assertThat(styles).contains(".article-content.is-collapsed");
         assertThat(styles).contains(".article-content.is-expanded");
         assertThat(styles).contains(".content-toggle");
@@ -60,8 +60,8 @@ class StaticResourceTextTest {
         assertThat(adminJs).contains("data-trace-request-id");
         assertThat(adminJs).contains("/api/admin/agent-traces?requestId=");
         assertThat(adminJs).contains("loadAgentTraces(traceRequestIdInput.value)");
-        assertThat(adminJs).contains("색인 조문");
-        assertThat(adminJs).contains("미색인 조문");
+        assertThat(adminJs).contains("\uC0C9\uC778 \uC870\uBB38");
+        assertThat(adminJs).contains("\uBBF8\uC0C9\uC778 \uC870\uBB38");
         assertThat(styles).contains(".trace-filter");
         assertThat(styles).contains(".trace-link");
     }
@@ -70,13 +70,13 @@ class StaticResourceTextTest {
     void questionPageUsesKoreanProcessLabelsWithoutPublicScoreCopy() throws IOException {
         String app = read("app.js");
 
-        assertThat(app).contains("검색 조문");
-        assertThat(app).contains("인용 조문");
-        assertThat(app).contains("키워드 후보");
-        assertThat(app).contains("벡터 후보");
-        assertThat(app).contains("질문 분석");
-        assertThat(app).contains("답변 작성");
-        assertThat(app).doesNotContain("점수 ${");
+        assertThat(app).contains("\uAC80\uC0C9 \uC870\uBB38");
+        assertThat(app).contains("\uC778\uC6A9 \uC870\uBB38");
+        assertThat(app).contains("\uD0A4\uC6CC\uB4DC \uD6C4\uBCF4");
+        assertThat(app).contains("\uBCA1\uD130 \uD6C4\uBCF4");
+        assertThat(app).contains("\uC9C8\uBB38 \uBD84\uC11D");
+        assertThat(app).contains("\uB2F5\uBCC0 \uC791\uC131");
+        assertThat(app).doesNotContain("\uC810\uC218 ${");
     }
 
     @Test

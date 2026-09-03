@@ -7,6 +7,7 @@ import com.example.lawassistant.infrastructure.vector.VectorDocument;
 import com.example.lawassistant.infrastructure.vector.VectorSearchClient;
 import com.example.lawassistant.repository.ArticleRepository;
 import com.example.lawassistant.service.model.VectorIndexResult;
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,15 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Order(200)
-public class VectorIndexService implements ApplicationRunner {
+public class VectorIndexService {
 
     private static final Logger log = LoggerFactory.getLogger(VectorIndexService.class);
 
@@ -57,10 +54,11 @@ public class VectorIndexService implements ApplicationRunner {
         this.rateLimitMaxRetries = Math.max(0, rateLimitMaxRetries);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public void run(ApplicationArguments args) {
-        reindexAll();
+    @PostConstruct
+    void restorePersistedIndexCount() {
+        long persistedCount = vectorSearchClient.count(collectionName);
+        indexedCount.set(Math.toIntExact(persistedCount));
+        log.info("Restored vector index state. collection={} points={}", collectionName, persistedCount);
     }
 
     @Transactional(readOnly = true)
@@ -174,7 +172,7 @@ public class VectorIndexService implements ApplicationRunner {
     }
 
     @Transactional(readOnly = true)
-    public int ensureIndexed() {
+    public synchronized int ensureIndexed() {
         if (indexedCount.get() == 0) {
             return reindexAll();
         }

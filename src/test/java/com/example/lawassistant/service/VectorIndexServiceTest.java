@@ -136,6 +136,29 @@ class VectorIndexServiceTest {
         verify(vectorSearchClient, times(1)).upsert(org.mockito.ArgumentMatchers.eq("law_articles"), anyList());
     }
 
+    @Test
+    void restorePersistedIndexCountSkipsReindexForExistingVectorCollection() {
+        when(vectorSearchClient.count("law_articles")).thenReturn(2056L);
+
+        VectorIndexService service = new VectorIndexService(
+                articleRepository,
+                embeddingClient,
+                vectorSearchClient,
+                "law_articles",
+                32,
+                0,
+                0,
+                0
+        );
+
+        service.restorePersistedIndexCount();
+
+        assertThat(service.ensureIndexed()).isEqualTo(2056);
+        verify(vectorSearchClient).count("law_articles");
+        verify(embeddingClient, times(0)).embedAll(anyList());
+        verify(vectorSearchClient, times(0)).upsert(org.mockito.ArgumentMatchers.eq("law_articles"), anyList());
+    }
+
     private List<List<Double>> vectorsFor(List<String> texts) {
         return texts.stream()
                 .map(ignored -> List.of(0.1, 0.2, 0.3))

@@ -38,6 +38,35 @@ public class QdrantVectorSearchClient implements VectorSearchClient {
     }
 
     @Override
+    public long count(String collectionName) {
+        try {
+            JsonNode response = restClient.get()
+                    .uri("/collections/{collectionName}", collectionName)
+                    .retrieve()
+                    .body(JsonNode.class);
+            JsonNode pointsCount = response == null ? null : response.path("result").path("points_count");
+            if (pointsCount == null || !pointsCount.canConvertToLong()) {
+                throw new QdrantVectorClientException(
+                        "Qdrant collection response did not contain a numeric points_count."
+                );
+            }
+            return pointsCount.asLong();
+        } catch (RestClientResponseException ex) {
+            if (ex.getStatusCode().value() == 404) {
+                return 0;
+            }
+            throw new QdrantVectorClientException("Qdrant collection lookup failed: "
+                    + collectionName
+                    + ", status="
+                    + ex.getStatusCode()
+                    + ", body="
+                    + ex.getResponseBodyAsString(), ex);
+        } catch (RestClientException ex) {
+            throw new QdrantVectorClientException("Qdrant collection lookup failed: " + collectionName, ex);
+        }
+    }
+
+    @Override
     public void upsert(String collectionName, List<VectorDocument> documents) {
         if (documents.isEmpty()) {
             return;

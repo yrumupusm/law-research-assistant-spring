@@ -15,6 +15,11 @@ public class InMemoryVectorSearchClient implements VectorSearchClient {
     private final Map<String, List<VectorDocument>> collections = new HashMap<>();
 
     @Override
+    public long count(String collectionName) {
+        return collections.getOrDefault(collectionName, List.of()).size();
+    }
+
+    @Override
     public void upsert(String collectionName, List<VectorDocument> documents) {
         List<VectorDocument> collection = collections.computeIfAbsent(collectionName, ignored -> new ArrayList<>());
         Map<String, VectorDocument> merged = new HashMap<>();

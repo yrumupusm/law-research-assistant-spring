@@ -21,6 +21,46 @@ import org.springframework.web.client.RestClient;
 class QdrantVectorSearchClientTest {
 
     @Test
+    void countReadsPersistedPointCount() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        QdrantVectorSearchClient client = new QdrantVectorSearchClient(
+                builder,
+                "http://localhost:6333",
+                "",
+                "Cosine"
+        );
+
+        server.expect(requestTo("http://localhost:6333/collections/law_articles"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        {"result":{"status":"green","points_count":2056}}
+                        """, MediaType.APPLICATION_JSON));
+
+        assertThat(client.count("law_articles")).isEqualTo(2056L);
+        server.verify();
+    }
+
+    @Test
+    void countReturnsZeroWhenCollectionDoesNotExist() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        QdrantVectorSearchClient client = new QdrantVectorSearchClient(
+                builder,
+                "http://localhost:6333",
+                "",
+                "Cosine"
+        );
+
+        server.expect(requestTo("http://localhost:6333/collections/law_articles"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        assertThat(client.count("law_articles")).isZero();
+        server.verify();
+    }
+
+    @Test
     void upsertCreatesCollectionWhenMissingAndWritesPoints() {
         RestClient.Builder builder = RestClient.builder();
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
