@@ -156,7 +156,22 @@ function renderResponse(question, asOf, response) {
     ${renderDiagnostics(diagnostics)}
   `;
 
+  hideInternalResponseDetails(response.disclaimer);
   bindArticleActions();
+}
+
+function hideInternalResponseDetails(disclaimer) {
+  resultArea.querySelector(".result-header .muted")?.remove();
+  resultArea.querySelector(".result-header .badge")?.remove();
+  resultArea.querySelectorAll(".article-reason").forEach((element) => element.remove());
+
+  const footerNote = resultArea.querySelector(".footer-note");
+  if (!footerNote) return;
+  if (!disclaimer) {
+    footerNote.remove();
+    return;
+  }
+  footerNote.textContent = disclaimer;
 }
 
 function renderErrorMessage(errorMessage) {
@@ -202,7 +217,6 @@ function renderArticle(article) {
         <span>유효기간: ${escapeHtml(period)}</span>
         ${article.amendmentKind ? `<span>변경구분: ${escapeHtml(article.amendmentKind)}</span>` : ""}
       </div>
-      <p class="article-reason">${escapeHtml(article.reason)}</p>
       <div class="article-content ${expandable ? "is-collapsed" : ""}" id="${escapeHtml(contentId)}">${escapeHtml(content)}</div>
       ${expandable ? `
         <button class="text-button content-toggle" type="button" data-action="toggle-content" data-target-id="${escapeHtml(contentId)}" aria-expanded="false">
