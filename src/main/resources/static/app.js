@@ -57,6 +57,10 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function stripMarkdownBold(value) {
+  return String(value ?? "").replaceAll("**", "");
+}
+
 function formatDate(value) {
   if (!value) return "현재 유효 조문";
   try {
@@ -185,7 +189,7 @@ function renderArticle(article) {
   const articleLabel = [article.articleNumber, article.articleTitle].filter(Boolean).join(" ");
   const period = `${formatDate(article.effectiveFrom)} ~ ${article.effectiveTo ? formatDate(article.effectiveTo) : "현재"}`;
   const hasPrevious = Boolean(article.previousArticleId);
-  const content = article.content ?? "";
+  const content = stripMarkdownBold(article.content);
   const contentId = `article-content-${article.articleId}`;
   const expandable = content.length > 260;
   return `
@@ -235,7 +239,7 @@ function renderInlineHistoricalEntries(entries) {
       </ol>
       ${entries.map((entry) => `
         <div class="article-content historical-content">
-          ${escapeHtml(entry.content)}
+          ${escapeHtml(stripMarkdownBold(entry.content))}
         </div>
       `).join("")}
     </div>
@@ -394,11 +398,11 @@ async function loadArticleDiff(articleId, previousId) {
       <div class="diff-grid">
         <div>
           <strong>선택 조문</strong>
-          <pre>${escapeHtml(diff.contentA)}</pre>
+          <pre>${escapeHtml(stripMarkdownBold(diff.contentA))}</pre>
         </div>
         <div>
           <strong>비교 조문</strong>
-          <pre>${escapeHtml(diff.contentB)}</pre>
+          <pre>${escapeHtml(stripMarkdownBold(diff.contentB))}</pre>
         </div>
       </div>
     `;

@@ -42,6 +42,8 @@ class StaticResourceTextTest {
 
         assertThat(app).contains("data-action=\"toggle-content\"");
         assertThat(app).contains("aria-expanded=\"false\"");
+        assertThat(app).contains("function stripMarkdownBold");
+        assertThat(app).contains("replaceAll(\"**\", \"\")");
         assertThat(app).contains("\uC804\uCCB4 \uBCF4\uAE30");
         assertThat(app).contains("\uC811\uAE30");
         assertThat(styles).contains(".article-content.is-collapsed");
