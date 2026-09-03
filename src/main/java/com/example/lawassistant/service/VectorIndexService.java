@@ -32,6 +32,9 @@ public class VectorIndexService implements ApplicationRunner {
     private final VectorSearchClient vectorSearchClient;
     private final String collectionName;
     private final int batchSize;
+    private final long batchDelayMillis;
+    private final long rateLimitRetryDelayMillis;
+    private final int rateLimitMaxRetries;
     private final AtomicInteger indexedCount = new AtomicInteger();
 
     public VectorIndexService(
@@ -39,13 +42,19 @@ public class VectorIndexService implements ApplicationRunner {
             EmbeddingClient embeddingClient,
             VectorSearchClient vectorSearchClient,
             @Value("${app.vector.collection:law_articles}") String collectionName,
-            @Value("${app.embedding.batch-size:32}") int batchSize
+            @Value("${app.embedding.batch-size:32}") int batchSize,
+            @Value("${app.embedding.batch-delay-millis:0}") long batchDelayMillis,
+            @Value("${app.embedding.rate-limit-retry-delay-millis:30000}") long rateLimitRetryDelayMillis,
+            @Value("${app.embedding.rate-limit-max-retries:2}") int rateLimitMaxRetries
     ) {
         this.articleRepository = articleRepository;
         this.embeddingClient = embeddingClient;
         this.vectorSearchClient = vectorSearchClient;
         this.collectionName = collectionName;
         this.batchSize = Math.max(1, batchSize);
+        this.batchDelayMillis = Math.max(0, batchDelayMillis);
+        this.rateLimitRetryDelayMillis = Math.max(0, rateLimitRetryDelayMillis);
+        this.rateLimitMaxRetries = Math.max(0, rateLimitMaxRetries);
     }
 
     @Override
@@ -77,7 +86,7 @@ public class VectorIndexService implements ApplicationRunner {
             int end = Math.min(start + batchSize, articles.size());
             List<Article> batch = articles.subList(start, end);
             try {
-                indexed += embedAndUpsert(batch);
+                indexed += embedAndUpsertWithRateLimitRetry(batch, start, end);
             } catch (RuntimeException batchFailure) {
                 log.warn(
                         "Vector batch indexing failed. start={} end={} size={} reason={}",
@@ -86,8 +95,13 @@ public class VectorIndexService implements ApplicationRunner {
                         batch.size(),
                         failureCode(batchFailure)
                 );
-                indexed += retryIndividually(batch, failedArticleIds);
+                if (isRateLimited(batchFailure)) {
+                    failedArticleIds.addAll(batch.stream().map(Article::getId).toList());
+                } else {
+                    indexed += retryIndividually(batch, failedArticleIds);
+                }
             }
+            pause(batchDelayMillis);
         }
 
         indexedCount.set(indexed);
@@ -109,6 +123,29 @@ public class VectorIndexService implements ApplicationRunner {
             }
         }
         return indexed;
+    }
+
+    private int embedAndUpsertWithRateLimitRetry(List<Article> batch, int start, int end) {
+        int retries = 0;
+        while (true) {
+            try {
+                return embedAndUpsert(batch);
+            } catch (RuntimeException batchFailure) {
+                if (!isRateLimited(batchFailure) || retries >= rateLimitMaxRetries) {
+                    throw batchFailure;
+                }
+                retries++;
+                log.warn(
+                        "Vector batch rate limited. start={} end={} retry={}/{} delayMs={}",
+                        start,
+                        end,
+                        retries,
+                        rateLimitMaxRetries,
+                        rateLimitRetryDelayMillis
+                );
+                pause(rateLimitRetryDelayMillis);
+            }
+        }
     }
 
     private int embedAndUpsert(List<Article> articles) {
@@ -153,6 +190,23 @@ public class VectorIndexService implements ApplicationRunner {
             return openRouterException.failureCode();
         }
         return "provider_request_failed";
+    }
+
+    private boolean isRateLimited(RuntimeException exception) {
+        return exception instanceof OpenRouterClientException openRouterException
+                && "provider_http_429".equals(openRouterException.failureCode());
+    }
+
+    private void pause(long delayMillis) {
+        if (delayMillis == 0) {
+            return;
+        }
+        try {
+            Thread.sleep(delayMillis);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Vector indexing interrupted during provider backoff.", exception);
+        }
     }
 
     public String toIndexText(Article article) {

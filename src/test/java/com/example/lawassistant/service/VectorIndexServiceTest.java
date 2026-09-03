@@ -13,6 +13,7 @@ import com.example.lawassistant.domain.entity.SnapshotVersion;
 import com.example.lawassistant.domain.enums.LawType;
 import com.example.lawassistant.domain.enums.SnapshotStatus;
 import com.example.lawassistant.infrastructure.embedding.EmbeddingClient;
+import com.example.lawassistant.infrastructure.openrouter.OpenRouterClientException;
 import com.example.lawassistant.infrastructure.vector.VectorDocument;
 import com.example.lawassistant.infrastructure.vector.VectorSearchClient;
 import com.example.lawassistant.repository.ArticleRepository;
@@ -42,7 +43,10 @@ class VectorIndexServiceTest {
                 embeddingClient,
                 vectorSearchClient,
                 "law_articles",
-                2
+                2,
+                0,
+                0,
+                0
         );
 
         var result = service.reindexAllDetailed();
@@ -78,7 +82,10 @@ class VectorIndexServiceTest {
                 embeddingClient,
                 vectorSearchClient,
                 "law_articles",
-                3
+                3,
+                0,
+                0,
+                0
         );
 
         var result = service.reindexAllDetailed();
@@ -94,6 +101,39 @@ class VectorIndexServiceTest {
         assertThat(captor.getAllValues())
                 .flatExtracting(documents -> documents.stream().map(VectorDocument::id).toList())
                 .containsExactly("1", "3");
+    }
+
+    @Test
+    void reindexAllDetailedRetriesRateLimitedBatchBeforeFallingBackToSingleArticles() {
+        when(articleRepository.findAll()).thenReturn(List.of(
+                article(1L, "제1조", "목적"),
+                article(2L, "제2조", "정의")
+        ));
+        when(embeddingClient.embedAll(anyList()))
+                .thenThrow(new OpenRouterClientException(
+                        "OpenRouter embedding request failed.",
+                        "provider_http_429",
+                        new IllegalStateException("rate limit details")
+                ))
+                .thenAnswer(invocation -> vectorsFor(invocation.getArgument(0)));
+
+        VectorIndexService service = new VectorIndexService(
+                articleRepository,
+                embeddingClient,
+                vectorSearchClient,
+                "law_articles",
+                2,
+                0,
+                0,
+                1
+        );
+
+        var result = service.reindexAllDetailed();
+
+        assertThat(result.indexedArticles()).isEqualTo(2);
+        assertThat(result.failedArticleIds()).isEmpty();
+        verify(embeddingClient, times(2)).embedAll(anyList());
+        verify(vectorSearchClient, times(1)).upsert(org.mockito.ArgumentMatchers.eq("law_articles"), anyList());
     }
 
     private List<List<Double>> vectorsFor(List<String> texts) {

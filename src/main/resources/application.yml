@@ -45,6 +45,9 @@ app:
     dimensions: ${EMBEDDING_DIMENSIONS:8}
     max-chars: ${EMBEDDING_MAX_CHARS:4000}
     batch-size: ${EMBEDDING_BATCH_SIZE:32}
+    batch-delay-millis: ${EMBEDDING_BATCH_DELAY_MILLIS:0}
+    rate-limit-retry-delay-millis: ${EMBEDDING_RATE_LIMIT_RETRY_DELAY_MILLIS:30000}
+    rate-limit-max-retries: ${EMBEDDING_RATE_LIMIT_MAX_RETRIES:2}
   reranker:
     provider: ${RERANKER_PROVIDER:mock}
     base-url: ${RERANKER_BASE_URL:https://api.cohere.com}
