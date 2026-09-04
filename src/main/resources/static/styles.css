@@ -280,34 +280,26 @@ button:disabled {
 
 .research-area-fieldset {
     display: grid;
-    gap: 6px;
+    gap: 2px;
     margin: 0;
     padding: 0;
     border: 0;
 }
 
-.research-area-fieldset legend {
-    padding: 0;
-    color: var(--foreground);
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.research-area-fieldset legend span,
-.research-area-fieldset p {
+.research-area-guidance {
+    margin: 0;
     color: var(--muted);
     font-size: 13px;
-    font-weight: 400;
 }
 
-.research-area-fieldset p {
-    margin: 0;
+.research-area-guidance span {
+    color: var(--muted);
 }
 
 .research-area-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 18px;
 }
 
 .research-area-option {
@@ -315,20 +307,16 @@ button:disabled {
     align-items: center;
     gap: 8px;
     min-height: 44px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 8px 12px;
-    background: #ffffff;
+    padding: 0 2px;
     color: var(--foreground);
     cursor: pointer;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .research-area-option:hover,
 .research-area-option:has(input:focus-visible) {
-    border-color: var(--primary);
-    background: #f8fbff;
+    color: var(--primary);
 }
 
 .research-area-option input {

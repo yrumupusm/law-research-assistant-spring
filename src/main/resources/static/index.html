@@ -49,12 +49,9 @@
             </div>
 
             <form id="ask-form" class="ask-form">
-                <label class="sr-only" for="question">질문</label>
-                <textarea id="question" maxlength="4000" rows="5" placeholder="예: 해외 업체에 기술자료를 제공해도 되나요?"></textarea>
-
                 <fieldset class="research-area-fieldset">
-                    <legend>먼저 확인할 분야 <span>복수 선택 가능</span></legend>
-                    <p>선택하지 않으면 질문 내용을 바탕으로 관련 법령을 함께 찾습니다.</p>
+                    <legend class="sr-only">관련 분야 선택</legend>
+                    <p class="research-area-guidance">질문과 관련된 분야가 있다면 선택하세요 <span>(선택 사항)</span></p>
                     <div class="research-area-options">
                         <label class="research-area-option">
                             <input type="checkbox" name="research-area" value="STRATEGIC_GOODS">
@@ -66,6 +63,9 @@
                         </label>
                     </div>
                 </fieldset>
+
+                <label class="sr-only" for="question">질문</label>
+                <textarea id="question" maxlength="4000" rows="5" placeholder="예: 해외 업체에 기술자료를 제공해도 되나요?"></textarea>
 
                 <div class="option-row">
                     <label class="date-field" for="as-of-date">
