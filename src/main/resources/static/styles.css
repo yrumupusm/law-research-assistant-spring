@@ -216,7 +216,11 @@ button:disabled {
 }
 
 .query-panel {
-    padding: 24px;
+    padding: 20px 24px;
+}
+
+.query-panel .panel-heading {
+    margin-bottom: 8px;
 }
 
 .panel-heading {
@@ -275,12 +279,12 @@ button:disabled {
 
 .ask-form {
     display: grid;
-    gap: 12px;
+    gap: 8px;
 }
 
 .research-area-selection {
     display: grid;
-    gap: 2px;
+    gap: 0;
     margin: 0;
     padding: 0;
 }
@@ -288,7 +292,7 @@ button:disabled {
 .research-area-guidance {
     margin: 0;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .research-area-guidance span {
@@ -298,19 +302,19 @@ button:disabled {
 .research-area-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
+    gap: 14px;
 }
 
 .research-area-option {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 44px;
+    min-height: 32px;
     padding: 0 2px;
-    color: var(--foreground);
+    color: var(--muted);
     cursor: pointer;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .research-area-option:hover,
@@ -319,8 +323,8 @@ button:disabled {
 }
 
 .research-area-option input {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     margin: 0;
     accent-color: var(--primary);
 }
@@ -1098,6 +1102,10 @@ tbody tr:last-child td {
     .search-input,
     .inline-form .secondary-button {
         width: 100%;
+    }
+
+    .research-area-option {
+        min-height: 44px;
     }
 
     .inline-form {
