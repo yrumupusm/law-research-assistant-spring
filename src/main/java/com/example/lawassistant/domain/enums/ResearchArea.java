@@ -27,6 +27,10 @@ public enum ResearchArea {
         return retrievalQueries;
     }
 
+    public List<String> preferredLawTitles() {
+        return preferredLawTitles;
+    }
+
     public boolean matchesLawTitle(String lawTitle) {
         return preferredLawTitles.stream().anyMatch(title -> title.equals(lawTitle));
     }

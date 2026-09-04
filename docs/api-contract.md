@@ -9,12 +9,13 @@ Request:
 ```json
 {
   "question": "해외 업체에 기술자료를 제공해도 되나요?",
-  "asOf": null
+  "asOf": null,
+  "researchAreas": ["STRATEGIC_GOODS"]
 }
 ```
 
 `asOf`가 `null`이면 현재 유효 조문을 기준으로 검색합니다. 날짜가 지정되면 `effectiveFrom <= asOf <= effectiveTo` 범위의 조문만 검색하며, 시행일/종료일이 모두 없는 legacy 조문은 기준일 비교가 불가능하므로 제외합니다.
-`question`은 공백만 있으면 안 되며 최대 4000자까지 허용합니다. 요청 JSON은 엄격하게 해석하므로 `question`, `asOf` 외 알 수 없는 필드나 잘못된 날짜 형식은 `400 Bad Request`와 `{"error":"invalid request"}`로 거부합니다. 원본 `/api/v1` 클라이언트 호환을 위해 기준일 필드는 `as_of`도 alias로 허용합니다.
+`researchAreas`는 선택 사항이며 `STRATEGIC_GOODS`, `DEFENSE_MATERIALS`를 복수로 받을 수 있습니다. 이 값은 검색 우선순위일 뿐 법적 분류를 판정하지 않습니다. `question`은 공백만 있으면 안 되며 최대 4000자까지 허용합니다. 요청 JSON은 엄격하게 해석하므로 `question`, `asOf`, `researchAreas` 외 알 수 없는 필드나 잘못된 날짜 형식·선택값은 `400 Bad Request`와 `{"error":"invalid request"}`로 거부합니다. 원본 `/api/v1` 클라이언트 호환을 위해 기준일 필드는 `as_of`, 선택 분야는 `research_areas`도 alias로 허용합니다.
 
 Response:
 

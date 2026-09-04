@@ -172,6 +172,50 @@ class AnswerWriterAgentTest {
     }
 
     @Test
+    void lawListQuestionStartsWithDistinctCitedLawTitles() {
+        AnswerWriterAgent agent = new AnswerWriterAgent(new EnglishDraftChatModelClient(), "mock");
+        SnapshotVersion snapshot = new SnapshotVersion(
+                "law-domain-2026-001",
+                SnapshotStatus.INDEXED,
+                LocalDateTime.now(),
+                "public-reference-data"
+        );
+        Law defenseAct = new Law("defense-acquisition", "방위사업법", LawType.LAW, "LAW-002", snapshot);
+        Article defenseArticle = new Article(
+                defenseAct,
+                "제57조",
+                "방산물자 수출허가",
+                "방산물자를 수출하려는 경우 허가 절차를 확인해야 한다.",
+                1
+        );
+
+        AnswerWriterAgent.DraftAnswer draft = agent.write(
+                "탱크를 수출하려는데 관련 법령이 뭐 있어?",
+                new QuestionInterpretationDto(
+                        "수출",
+                        "방산물자",
+                        List.of("수출통제", "방산"),
+                        List.of(),
+                        List.of("방산물자 수출"),
+                        QuestionType.LAW_LIST
+                ),
+                List.of(
+                        new RetrievalHit(defenseArticle, 0.9, "키워드 일치"),
+                        new RetrievalHit(article(), 0.8, "키워드 일치")
+                ),
+                new EffectiveBasisDto("law-domain-2026-001", LocalDateTime.now(), null),
+                true
+        );
+
+        assertEquals(SearchStatus.OK, draft.status());
+        assertEquals(
+                "검색된 관련 법령:\n- 방위사업법\n- 대외무역법\n\n"
+                        + "방위사업법 제57조가 현재 질문과 가장 가까운 근거 조문입니다. 실제 판단 전에는 인용 조문과 함께 품목 또는 자료의 성격, 제공받는 기관, 목적지 국가, 제공 목적을 추가로 확인해야 합니다.",
+                draft.reasoning()
+        );
+    }
+
+    @Test
     void metadataQuestionPrefersParentLawWhenSubordinateLawIsRankedFirst() {
         AnswerWriterAgent agent = new AnswerWriterAgent(new EnglishDraftChatModelClient(), "mock");
         SnapshotVersion snapshot = new SnapshotVersion(

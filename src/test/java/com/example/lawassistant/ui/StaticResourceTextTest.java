@@ -42,12 +42,14 @@ class StaticResourceTextTest {
     }
 
     @Test
-    void citedArticleContentSupportsAccessibleExpandAndCollapse() throws IOException {
+    void citedArticleContentIsCollapsedUntilTheUserRequestsTheFullText() throws IOException {
         String app = read("app.js");
         String styles = read("styles.css");
 
         assertThat(app).contains("data-action=\"toggle-content\"");
         assertThat(app).contains("aria-expanded=\"false\"");
+        assertThat(app).contains("aria-controls=");
+        assertThat(app).contains("article-details is-collapsed");
         assertThat(app).contains("function stripMarkdownBold");
         assertThat(app).contains("replaceAll(\"**\", \"\")");
         assertThat(app).contains("function hideInternalResponseDetails");
@@ -55,8 +57,8 @@ class StaticResourceTextTest {
         assertThat(app).contains(".article-reason");
         assertThat(app).contains("\uC804\uCCB4 \uBCF4\uAE30");
         assertThat(app).contains("\uC811\uAE30");
-        assertThat(styles).contains(".article-content.is-collapsed");
-        assertThat(styles).contains(".article-content.is-expanded");
+        assertThat(styles).contains(".article-details.is-collapsed");
+        assertThat(styles).contains(".article-details.is-expanded");
         assertThat(styles).contains(".content-toggle");
     }
 

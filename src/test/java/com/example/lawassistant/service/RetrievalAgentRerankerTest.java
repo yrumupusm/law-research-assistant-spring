@@ -117,6 +117,48 @@ class RetrievalAgentRerankerTest {
     }
 
     @Test
+    void lawListQuestionDiversifiesTheReturnedLawTitles() {
+        ArticleRepository articleRepository = mock(ArticleRepository.class);
+        EmbeddingClient embeddingClient = mock(EmbeddingClient.class);
+        VectorSearchClient vectorSearchClient = mock(VectorSearchClient.class);
+        VectorIndexService vectorIndexService = mock(VectorIndexService.class);
+        RerankerClient rerankerClient = (query, candidates, topK) -> candidates.stream().limit(topK).toList();
+        Article defenseArticle = article(1L, "방위사업법", "제57조", "방산물자 수출허가");
+        Article scienceArticle = article(2L, "국방과학기술혁신 촉진법", "제16조", "국방과학기술 수출");
+        Article supplyArticle = article(3L, "군수품관리법", "제4조", "군수품 관리");
+        when(articleRepository.searchByKeyword(eq("방산물자 수출")))
+                .thenReturn(List.of(defenseArticle, scienceArticle, supplyArticle));
+        when(embeddingClient.embed(any())).thenReturn(List.of(0.1, 0.2, 0.3));
+        when(vectorSearchClient.search(eq("law_articles"), any(), eq(5))).thenReturn(List.of());
+
+        RetrievalAgent agent = new RetrievalAgent(
+                articleRepository,
+                embeddingClient,
+                vectorSearchClient,
+                vectorIndexService,
+                rerankerClient,
+                2,
+                5,
+                "law_articles"
+        );
+
+        var result = agent.retrieve(new QuestionInterpretationDto(
+                "수출",
+                "방산물자",
+                List.of("방산"),
+                List.of(),
+                List.of("방산물자 수출"),
+                QuestionType.LAW_LIST
+        ));
+
+        assertThat(result.hits()).hasSize(2);
+        assertThat(result.hits().stream()
+                .map(hit -> hit.article().getLaw().getTitle())
+                .distinct())
+                .hasSize(2);
+    }
+
+    @Test
     void keywordRankingBoostsExactLawAndArticleNumberMatches() {
         ArticleRepository articleRepository = mock(ArticleRepository.class);
         EmbeddingClient embeddingClient = mock(EmbeddingClient.class);

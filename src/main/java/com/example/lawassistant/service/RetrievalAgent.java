@@ -91,7 +91,8 @@ public class RetrievalAgent {
                 merged.values().stream()
                 .map(MutableHit::toHit)
                 .sorted(Comparator.comparingDouble(RetrievalHit::score).reversed())
-                .toList()
+                .toList(),
+                interpretation.questionType() == QuestionType.LAW_LIST
         );
 
         return new RetrievalResult(hits, keywordHits, vectorHits, merged.size());
@@ -100,7 +101,8 @@ public class RetrievalAgent {
     private List<RetrievalHit> rerank(
             List<String> queries,
             List<ResearchArea> researchAreas,
-            List<RetrievalHit> hits
+            List<RetrievalHit> hits,
+            boolean diversifyByLaw
     ) {
         if (hits.isEmpty()) {
             return hits;
@@ -122,7 +124,8 @@ public class RetrievalAgent {
             ));
         }
         String query = String.join(" ", queries);
-        return rerankerClient.rerank(query, candidates, topK).stream()
+        int rerankLimit = diversifyByLaw ? Math.max(topK * 3, topK) : topK;
+        List<RetrievalHit> reranked = rerankerClient.rerank(query, candidates, rerankLimit).stream()
                 .map(candidate -> withRerankScore(
                         byId.get(candidate.id()),
                         candidate.score(),
@@ -131,6 +134,30 @@ public class RetrievalAgent {
                 .filter(hit -> hit != null)
                 .sorted(Comparator.comparingDouble(RetrievalHit::score).reversed())
                 .toList();
+        return diversifyByLaw ? diversifyLawResults(reranked) : reranked;
+    }
+
+    private List<RetrievalHit> diversifyLawResults(List<RetrievalHit> hits) {
+        LinkedHashMap<String, RetrievalHit> firstHitByLaw = new LinkedHashMap<>();
+        for (RetrievalHit hit : hits) {
+            firstHitByLaw.putIfAbsent(hit.article().getLaw().getTitle(), hit);
+        }
+
+        List<RetrievalHit> selected = new ArrayList<>(firstHitByLaw.values());
+        if (selected.size() < topK) {
+            Set<Long> selectedArticleIds = selected.stream()
+                    .map(hit -> hit.article().getId())
+                    .collect(java.util.stream.Collectors.toSet());
+            for (RetrievalHit hit : hits) {
+                if (selected.size() >= topK) {
+                    break;
+                }
+                if (selectedArticleIds.add(hit.article().getId())) {
+                    selected.add(hit);
+                }
+            }
+        }
+        return selected.stream().limit(topK).toList();
     }
 
     private String rerankText(Article article) {
@@ -223,6 +250,12 @@ public class RetrievalAgent {
                 .filter(area -> area != null)
                 .flatMap(area -> area.retrievalQueries().stream())
                 .forEach(queries::add);
+        if (interpretation.questionType() == QuestionType.LAW_LIST) {
+            researchAreas.stream()
+                    .filter(area -> area != null)
+                    .flatMap(area -> area.preferredLawTitles().stream())
+                    .forEach(queries::add);
+        }
         queries.addAll(interpretation.generatedQueries());
         return queries.stream()
                 .filter(query -> query != null && !query.isBlank())

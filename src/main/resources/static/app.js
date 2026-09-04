@@ -206,34 +206,33 @@ function renderArticle(article) {
   const period = `${formatDate(article.effectiveFrom)} ~ ${article.effectiveTo ? formatDate(article.effectiveTo) : "현재"}`;
   const hasPrevious = Boolean(article.previousArticleId);
   const content = stripMarkdownBold(article.content);
-  const contentId = `article-content-${article.articleId}`;
-  const expandable = content.length > 260;
+  const detailsId = `article-details-${article.articleId}`;
   return `
     <article class="article-card" data-article-id="${escapeHtml(article.articleId)}">
       <div class="article-meta">
         <span class="badge">${escapeHtml(article.lawTitle)}</span>
         <span class="article-title">${escapeHtml(articleLabel)}</span>
-      </div>
-      <div class="article-submeta">
-        <span>유효기간: ${escapeHtml(period)}</span>
-        ${article.amendmentKind ? `<span>변경구분: ${escapeHtml(article.amendmentKind)}</span>` : ""}
-      </div>
-      <div class="article-content ${expandable ? "is-collapsed" : ""}" id="${escapeHtml(contentId)}">${escapeHtml(content)}</div>
-      ${expandable ? `
-        <button class="text-button content-toggle" type="button" data-action="toggle-content" data-target-id="${escapeHtml(contentId)}" aria-expanded="false">
+        <button class="text-button content-toggle" type="button" data-action="toggle-content" data-target-id="${escapeHtml(detailsId)}" aria-expanded="false" aria-controls="${escapeHtml(detailsId)}">
           전체 보기
         </button>
-      ` : ""}
-      ${renderInlineHistoricalEntries(article.historicalEntries ?? [])}
-      <div class="article-actions">
-        <button class="secondary-button" type="button" data-action="history" data-article-id="${escapeHtml(article.articleId)}">
-          이력 보기
-        </button>
-        <button class="secondary-button" type="button" data-action="diff" data-article-id="${escapeHtml(article.articleId)}" data-previous-id="${escapeHtml(article.previousArticleId ?? "")}" ${hasPrevious ? "" : "disabled"}>
-          이전 조문 비교
-        </button>
       </div>
-      <div class="article-detail" id="article-detail-${escapeHtml(article.articleId)}"></div>
+      <div class="article-details is-collapsed" id="${escapeHtml(detailsId)}">
+        <div class="article-submeta">
+          <span>유효기간: ${escapeHtml(period)}</span>
+          ${article.amendmentKind ? `<span>변경구분: ${escapeHtml(article.amendmentKind)}</span>` : ""}
+        </div>
+        <div class="article-content">${escapeHtml(content)}</div>
+        ${renderInlineHistoricalEntries(article.historicalEntries ?? [])}
+        <div class="article-actions">
+          <button class="secondary-button" type="button" data-action="history" data-article-id="${escapeHtml(article.articleId)}">
+            이력 보기
+          </button>
+          <button class="secondary-button" type="button" data-action="diff" data-article-id="${escapeHtml(article.articleId)}" data-previous-id="${escapeHtml(article.previousArticleId ?? "")}" ${hasPrevious ? "" : "disabled"}>
+            이전 조문 비교
+          </button>
+        </div>
+        <div class="article-detail" id="article-detail-${escapeHtml(article.articleId)}"></div>
+      </div>
     </article>
   `;
 }

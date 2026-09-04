@@ -826,7 +826,6 @@ tbody tr:last-child td {
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
 }
 
 .article-title {
@@ -848,6 +847,15 @@ tbody tr:last-child td {
     font-size: 12px;
 }
 
+.article-details.is-collapsed {
+    display: none;
+}
+
+.article-details.is-expanded {
+    display: block;
+    margin-top: 12px;
+}
+
 .article-content {
     position: relative;
     overflow: visible;
@@ -859,29 +867,9 @@ tbody tr:last-child td {
     white-space: pre-wrap;
 }
 
-.article-content.is-collapsed {
-    max-height: 172px;
-    overflow: hidden;
-}
-
-.article-content.is-collapsed::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 52px;
-    border-radius: 0 0 var(--radius) var(--radius);
-    background: linear-gradient(180deg, rgba(241, 245, 249, 0), var(--surface-muted));
-    pointer-events: none;
-}
-
-.article-content.is-expanded {
-    max-height: none;
-}
-
 .content-toggle {
-    margin-top: 8px;
+    padding: 2px 4px;
+    font-size: 13px;
 }
 
 .article-actions {

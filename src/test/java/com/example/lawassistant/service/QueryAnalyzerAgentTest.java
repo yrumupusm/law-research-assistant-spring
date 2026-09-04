@@ -49,4 +49,13 @@ class QueryAnalyzerAgentTest {
         assertThat(result.action()).isEqualTo("이전");
         assertThat(result.domainCandidates()).contains("방산", "기술이전");
     }
+
+    @Test
+    void classifiesLawListQuestionBeforeExportConfirmation() {
+        var result = agent.analyze("탱크를 수출하려는데 관련 법령이 뭐 있어?");
+
+        assertThat(result.questionType()).isEqualTo(QuestionType.LAW_LIST);
+        assertThat(result.action()).isEqualTo("수출");
+        assertThat(result.object()).isEqualTo("방산물자");
+    }
 }

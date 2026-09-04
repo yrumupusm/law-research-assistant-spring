@@ -51,11 +51,23 @@ public class QueryAnalyzerAgent {
                 || containsAny(lower, "can i do this", "is this allowed", "can we do this")) {
             return QuestionType.INSUFFICIENT;
         }
+        if (isLawListQuestion(question, lower)) {
+            return QuestionType.LAW_LIST;
+        }
         if (containsAny(question, "\uD574\uC57C", "\uAC00\uB2A5", "\uD544\uC694", "\uC81C\uACF5", "\uC218\uCD9C", "\uBC18\uCD9C")
                 || containsAny(lower, "can i", "should", "need", "provide", "export", "transfer")) {
             return QuestionType.CONFIRMATORY;
         }
         return QuestionType.EXPLORATORY;
+    }
+
+    private boolean isLawListQuestion(String question, String lower) {
+        return containsAny(
+                question,
+                "\uAD00\uB828 \uBC95\uB839", "\uAD00\uB828\uB41C \uBC95\uB839", "\uC5B4\uB5A4 \uBC95\uB839", "\uBB34\uC2A8 \uBC95\uB839",
+                "\uBC95\uB839\uC774 \uBB50", "\uBC95\uB839\uC5D0\uB294", "\uBC95\uB839\uC744 \uC54C\uB824", "\uBC95\uB839 \uC54C\uB824",
+                "\uC801\uC6A9 \uBC95\uB839", "\uC5B4\uB5A4 \uBC95", "\uBB34\uC2A8 \uBC95"
+        ) || containsAny(lower, "related law", "applicable law", "which law", "what law");
     }
 
     private boolean isRevisionCompareQuestion(String question, String lower) {

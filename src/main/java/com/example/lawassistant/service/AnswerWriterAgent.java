@@ -123,7 +123,10 @@ public class AnswerWriterAgent {
         }
 
         if (!"openrouter".equalsIgnoreCase(llmProvider)) {
-            return capWeakEvidence(fallbackDraft(interpretation, citedArticles, candidateLaws), weakEvidence);
+            return capWeakEvidence(
+                    addCitedLawList(question, fallbackDraft(interpretation, citedArticles, candidateLaws)),
+                    weakEvidence
+            );
         }
 
         try {
@@ -141,7 +144,7 @@ public class AnswerWriterAgent {
                 draft = draftFromLlmResult(llmResult, interpretation, citedArticles, candidateLaws);
             }
             if (isAcceptable(draft)) {
-                return capWeakEvidence(draft, weakEvidence);
+                return capWeakEvidence(addCitedLawList(question, draft), weakEvidence);
             }
 
             Map<String, Object> retryResult = chatModelClient.generateJson(
@@ -150,15 +153,63 @@ public class AnswerWriterAgent {
             );
             DraftAnswer retried = draftFromLlmResult(retryResult, interpretation, citedArticles, candidateLaws);
             if (isAcceptable(retried)) {
-                return capWeakEvidence(retried, weakEvidence);
+                return capWeakEvidence(addCitedLawList(question, retried), weakEvidence);
             }
 
-            return capWeakEvidence(fallbackDraft(interpretation, citedArticles, candidateLaws), weakEvidence);
+            return capWeakEvidence(
+                    addCitedLawList(question, fallbackDraft(interpretation, citedArticles, candidateLaws)),
+                    weakEvidence
+            );
         } catch (OpenRouterClientException ex) {
             throw ex;
         } catch (RuntimeException ex) {
-            return capWeakEvidence(fallbackDraft(interpretation, citedArticles, candidateLaws), weakEvidence);
+            return capWeakEvidence(
+                    addCitedLawList(question, fallbackDraft(interpretation, citedArticles, candidateLaws)),
+                    weakEvidence
+            );
         }
+    }
+
+    private DraftAnswer addCitedLawList(String question, DraftAnswer draft) {
+        if (!isLawListQuestion(question) || draft.citedArticles().isEmpty()) {
+            return draft;
+        }
+        List<String> lawTitles = draft.citedArticles().stream()
+                .map(CitedArticleDto::lawTitle)
+                .filter(title -> title != null && !title.isBlank())
+                .distinct()
+                .toList();
+        if (lawTitles.isEmpty()) {
+            return draft;
+        }
+
+        String lawList = lawTitles.stream()
+                .map(title -> "- " + title)
+                .collect(java.util.stream.Collectors.joining("\n"));
+        return new DraftAnswer(
+                draft.status(),
+                draft.candidateLaws(),
+                draft.citedArticles(),
+                "검색된 관련 법령:\n" + lawList + "\n\n" + draft.reasoning(),
+                draft.followUpQuestions(),
+                draft.confidence(),
+                draft.errorMessage()
+        );
+    }
+
+    private boolean isLawListQuestion(String question) {
+        String normalized = question == null ? "" : question.replaceAll("\\s+", " ").trim();
+        return normalized.contains("관련 법령")
+                || normalized.contains("관련된 법령")
+                || normalized.contains("어떤 법령")
+                || normalized.contains("무슨 법령")
+                || normalized.contains("법령이 뭐")
+                || normalized.contains("법령에는")
+                || normalized.contains("법령을 알려")
+                || normalized.contains("법령 알려")
+                || normalized.contains("적용 법령")
+                || normalized.contains("어떤 법")
+                || normalized.contains("무슨 법");
     }
 
     private DraftAnswer capWeakEvidence(DraftAnswer draft, boolean weakEvidence) {
@@ -197,6 +248,7 @@ public class AnswerWriterAgent {
                 반드시 한국어만 사용하세요. 사용자가 영어로 질문해도 답변, 추가 확인 질문, 설명은 모두 한국어로 작성하세요.
                 제공된 조문만 근거로 사용하고, 법령 문구나 조문을 임의로 만들지 마세요.
                 법률 자문처럼 단정하지 말고, 실무 검토용 요약으로 간결하게 작성하세요.
+                법령 목록을 묻는 질문이어도 법령 목록을 별도로 만들지 말고, 제공된 조문별 역할만 설명하세요. 검색·인용된 법령 목록은 서비스가 별도로 표시합니다.
                 JSON만 반환하고 값도 한국어로 작성하세요. 정확히 다음 key를 사용하세요:
                 - reasoning: string
                 - followUpQuestions: array of Korean strings
