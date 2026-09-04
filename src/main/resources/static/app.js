@@ -122,8 +122,6 @@ function renderResponse(question, asOf, response) {
   const citedArticles = response.citedArticles ?? [];
   const candidateLaws = response.candidateLaws ?? [];
   const followUps = response.followUpQuestions ?? [];
-  const diagnostics = response.diagnostics ?? {};
-  const interpretation = response.interpretation;
   const basisAsOf = response.effectiveBasis?.asOf ?? asOf;
 
   resultArea.innerHTML = `
@@ -153,8 +151,6 @@ function renderResponse(question, asOf, response) {
 
     ${renderArticles(citedArticles)}
     ${renderLaws(candidateLaws)}
-    ${interpretation ? renderInterpretation(interpretation) : ""}
-    ${renderDiagnostics(diagnostics)}
   `;
 
   hideInternalResponseDetails(response.disclaimer);
