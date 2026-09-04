@@ -29,6 +29,7 @@ public class RetrievalAgent {
 
     private static final int RRF_K = 60;
     private static final double RRF_WEIGHT = 6.0;
+    private static final java.util.regex.Pattern SUPPLEMENTARY_PROVISIONS = java.util.regex.Pattern.compile("(?m)^##\\s+부칙(?:\\s|$)");
 
     private final ArticleRepository articleRepository;
     private final EmbeddingClient embeddingClient;
@@ -90,12 +91,18 @@ public class RetrievalAgent {
                 safeResearchAreas,
                 merged.values().stream()
                 .map(MutableHit::toHit)
+                .filter(this::isCitableArticle)
                 .sorted(Comparator.comparingDouble(RetrievalHit::score).reversed())
                 .toList(),
                 isLawListQuestion(interpretation)
         );
 
         return new RetrievalResult(hits, keywordHits, vectorHits, merged.size());
+    }
+
+    private boolean isCitableArticle(RetrievalHit hit) {
+        String content = hit.article().getContent();
+        return content == null || !SUPPLEMENTARY_PROVISIONS.matcher(content).find();
     }
 
     private List<RetrievalHit> rerank(

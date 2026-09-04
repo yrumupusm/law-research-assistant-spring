@@ -70,6 +70,23 @@ class MarkdownLawParserTest {
     }
 
     @Test
+    void excludesSupplementaryProvisionsFromTheLastArticle() {
+        var parsed = parser.parse(markdown("""
+                ##### 제64조 (과태료)
+                과태료를 부과한다.
+
+                ## 부칙
+
+                제1조 (시행일)
+                이 법은 공포한 날부터 시행한다.
+                """), "kr/test/법률.md");
+
+        assertThat(parsed.articles()).hasSize(1);
+        assertThat(parsed.articles().get(0).content()).isEqualTo("과태료를 부과한다.");
+        assertThat(parsed.articles().get(0).content()).doesNotContain("부칙", "시행일");
+    }
+
+    @Test
     void invalidMetadataDateFailsInsteadOfBeingSilentlyDropped() {
         String content = markdown("""
                 ##### 제1조 (목적)

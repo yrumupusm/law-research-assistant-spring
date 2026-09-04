@@ -21,6 +21,7 @@ public class MarkdownLawParser {
     private static final Pattern ARTICLE_HEADER = Pattern.compile(
             "^#####\\s+(제\\d+조(?:의\\d+)?)(?:\\s*\\(([^\\)\\n]*?)\\))?.*$"
     );
+    private static final Pattern SUPPLEMENT_HEADER = Pattern.compile("^##\\s+부칙(?:\\s|$).*");
     private static final Pattern ARTICLE_BASE_NUMBER = Pattern.compile("^(제\\d+조)");
 
     public ParsedLawFile parse(String text, String sourcePath) {
@@ -102,6 +103,9 @@ public class MarkdownLawParser {
         int order = 0;
 
         for (String line : body.split("\n")) {
+            if (SUPPLEMENT_HEADER.matcher(line).matches()) {
+                break;
+            }
             Matcher matcher = ARTICLE_HEADER.matcher(line);
             if (matcher.matches()) {
                 if (currentNumber != null) {

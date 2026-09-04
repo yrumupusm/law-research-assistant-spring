@@ -159,6 +159,43 @@ class RetrievalAgentRerankerTest {
     }
 
     @Test
+    void excludesArticleThatIncorrectlyContainsSupplementaryProvisions() {
+        ArticleRepository articleRepository = mock(ArticleRepository.class);
+        EmbeddingClient embeddingClient = mock(EmbeddingClient.class);
+        VectorSearchClient vectorSearchClient = mock(VectorSearchClient.class);
+        VectorIndexService vectorIndexService = mock(VectorIndexService.class);
+        RerankerClient rerankerClient = (query, candidates, topK) -> candidates.stream().limit(topK).toList();
+        Article invalidArticle = article(1L, "방위사업법", "제64조", "과태료\n\n## 부칙\n\n제1조 (시행일)");
+        Article validArticle = article(2L, "방위사업법", "제57조", "방산물자를 수출하려는 경우 수출허가를 받아야 한다.");
+        when(articleRepository.searchByKeyword(eq("방산물자 수출"))).thenReturn(List.of(invalidArticle, validArticle));
+        when(embeddingClient.embed(any())).thenReturn(List.of(0.1, 0.2, 0.3));
+        when(vectorSearchClient.search(eq("law_articles"), any(), eq(5))).thenReturn(List.of());
+
+        RetrievalAgent agent = new RetrievalAgent(
+                articleRepository,
+                embeddingClient,
+                vectorSearchClient,
+                vectorIndexService,
+                rerankerClient,
+                5,
+                5,
+                "law_articles"
+        );
+
+        var result = agent.retrieve(new QuestionInterpretationDto(
+                "수출",
+                "방산물자",
+                List.of("수출통제", "방산"),
+                List.of(),
+                List.of("방산물자 수출"),
+                QuestionType.CONFIRMATORY
+        ));
+
+        assertThat(result.hits()).extracting(hit -> hit.article().getArticleNumber())
+                .containsExactly("제57조");
+    }
+
+    @Test
     void keywordRankingBoostsExactLawAndArticleNumberMatches() {
         ArticleRepository articleRepository = mock(ArticleRepository.class);
         EmbeddingClient embeddingClient = mock(EmbeddingClient.class);
