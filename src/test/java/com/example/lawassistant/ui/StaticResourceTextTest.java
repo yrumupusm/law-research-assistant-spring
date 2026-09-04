@@ -33,6 +33,8 @@ class StaticResourceTextTest {
         assertThat(index).contains("STRATEGIC_GOODS");
         assertThat(index).contains("DEFENSE_MATERIALS");
         assertThat(index).contains("\uC9C8\uBB38\uACFC \uAD00\uB828\uB41C \uBD84\uC57C\uAC00 \uC788\uB2E4\uBA74 \uC120\uD0DD\uD558\uC138\uC694");
+        assertThat(index).contains("role=\"group\"");
+        assertThat(index).doesNotContain("<fieldset class=\"research-area-fieldset\"");
 
         assertThat(admin).contains("<title>\uAD00\uB9AC - \uBC95\uB839 \uAC80\uC0C9 \uC5B4\uC2DC\uC2A4\uD134\uD2B8</title>");
         assertThat(admin).contains("\uAD00\uB9AC \uB300\uC2DC\uBCF4\uB4DC");
@@ -89,7 +91,7 @@ class StaticResourceTextTest {
         assertThat(app).contains("function selectedResearchAreas");
         assertThat(app).contains("researchAreas");
         assertThat(app).doesNotContain("\uC810\uC218 ${");
-        assertThat(styles).contains(".research-area-fieldset");
+        assertThat(styles).contains(".research-area-selection");
         assertThat(styles).contains(".research-area-option");
     }
 

@@ -278,12 +278,11 @@ button:disabled {
     gap: 12px;
 }
 
-.research-area-fieldset {
+.research-area-selection {
     display: grid;
     gap: 2px;
     margin: 0;
     padding: 0;
-    border: 0;
 }
 
 .research-area-guidance {
