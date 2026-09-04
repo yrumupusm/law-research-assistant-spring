@@ -120,7 +120,6 @@ function renderError(message) {
 
 function renderResponse(question, asOf, response) {
   const citedArticles = response.citedArticles ?? [];
-  const candidateLaws = response.candidateLaws ?? [];
   const followUps = response.followUpQuestions ?? [];
   const basisAsOf = response.effectiveBasis?.asOf ?? asOf;
 
@@ -150,7 +149,6 @@ function renderResponse(question, asOf, response) {
     </article>
 
     ${renderArticles(citedArticles)}
-    ${renderLaws(candidateLaws)}
   `;
 
   hideInternalResponseDetails(response.disclaimer);
@@ -253,23 +251,6 @@ function renderInlineHistoricalEntries(entries) {
         </div>
       `).join("")}
     </div>
-  `;
-}
-
-function renderLaws(laws) {
-  if (!laws.length) return "";
-  return `
-    <section class="section" aria-labelledby="laws-title">
-      <h2 id="laws-title" class="section-title">관련 법령 <span class="muted">${laws.length}건</span></h2>
-      <div class="law-grid">
-        ${laws.map((law) => `
-          <div class="law-item">
-            <strong>${escapeHtml(law.title)}</strong>
-            <span>${escapeHtml(law.relevanceReason)}</span>
-          </div>
-        `).join("")}
-      </div>
-    </section>
   `;
 }
 
