@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.lawassistant.domain.enums.ResearchArea;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
@@ -45,7 +46,11 @@ class EvaluationHarnessTest {
 
         return questions.stream()
                 .map(question -> DynamicTest.dynamicTest(question.id(), () -> {
-                    String body = objectMapper.writeValueAsString(new AskPayload(question.question(), null));
+                    String body = objectMapper.writeValueAsString(new AskPayload(
+                            question.question(),
+                            null,
+                            question.researchAreas()
+                    ));
                     var result = mockMvc.perform(post("/api/ask")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(body))
@@ -120,7 +125,8 @@ class EvaluationHarnessTest {
             Integer minVectorHits,
             Integer maxVectorHits,
             Integer minHistoricalEntries,
-            List<ExpectedCitation> expectedCitations
+            List<ExpectedCitation> expectedCitations,
+            List<ResearchArea> researchAreas
     ) {
     }
 
@@ -132,7 +138,8 @@ class EvaluationHarnessTest {
 
     record AskPayload(
             String question,
-            Object asOf
+            Object asOf,
+            List<ResearchArea> researchAreas
     ) {
     }
 }

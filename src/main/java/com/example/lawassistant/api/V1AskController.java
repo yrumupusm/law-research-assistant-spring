@@ -27,6 +27,8 @@ public class V1AskController {
     @PostMapping("/ask")
     @Operation(summary = "Ask a legal research question with original v1 response field names")
     public Map<String, Object> ask(@Valid @RequestBody AskRequest request) {
-        return v1ResponseMapper.toSnakeCaseMap(askOrchestratorService.ask(request.question(), request.asOf()));
+        return v1ResponseMapper.toSnakeCaseMap(
+                askOrchestratorService.ask(request.question(), request.asOf(), request.researchAreas())
+        );
     }
 }

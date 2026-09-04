@@ -86,6 +86,7 @@
   },
   {
     "id": "q09-tank-export",
+    "researchAreas": ["DEFENSE_MATERIALS"],
     "question": "탱크를 수출하려는데 관련 법령이 뭐 있어?",
     "expectedStatus": "OK",
     "minCitedArticles": 1,

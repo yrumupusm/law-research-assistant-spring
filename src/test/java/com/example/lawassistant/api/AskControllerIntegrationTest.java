@@ -109,6 +109,36 @@ class AskControllerIntegrationTest {
     }
 
     @Test
+    void askUsesSelectedResearchAreaForGuidance() throws Exception {
+        mockMvc.perform(post("/api/ask")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "question": "수출허가 절차를 알려주세요.",
+                                  "researchAreas": ["DEFENSE_MATERIALS"]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.citedArticles.length()").value(greaterThanOrEqualTo(1)))
+                .andExpect(jsonPath("$.disclaimer").value(org.hamcrest.Matchers.containsString("방위사업청")));
+    }
+
+    @Test
+    void askRejectsInvalidResearchArea() throws Exception {
+        mockMvc.perform(post("/api/ask")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "question": "수출허가 절차를 알려주세요.",
+                                  "researchAreas": ["UNKNOWN_AREA"]
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid request"));
+    }
+
+    @Test
     void searchLogRequestIdCanFilterAgentTraces() throws Exception {
         String askBody = mockMvc.perform(post("/api/ask")
                         .contentType(MediaType.APPLICATION_JSON)

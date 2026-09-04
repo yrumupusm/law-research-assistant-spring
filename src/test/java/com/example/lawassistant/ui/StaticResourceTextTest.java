@@ -29,6 +29,9 @@ class StaticResourceTextTest {
         assertThat(index).contains("<title>\uBC95\uB839 \uAC80\uC0C9 \uC5B4\uC2DC\uC2A4\uD134\uD2B8</title>");
         assertThat(index).contains("\uC804\uB7B5\uBB3C\uC790\uC640 \uAD00\uB828\uB41C \uBC95\uB839\uC744 \uCC3E\uC544\uBCF4\uC138\uC694");
         assertThat(index).contains("\uD574\uC678 \uC5C5\uCCB4\uC5D0 \uAE30\uC220\uC790\uB8CC\uB97C \uC81C\uACF5\uD574\uB3C4 \uB418\uB098\uC694?");
+        assertThat(index).contains("name=\"research-area\"");
+        assertThat(index).contains("STRATEGIC_GOODS");
+        assertThat(index).contains("DEFENSE_MATERIALS");
 
         assertThat(admin).contains("<title>\uAD00\uB9AC - \uBC95\uB839 \uAC80\uC0C9 \uC5B4\uC2DC\uC2A4\uD134\uD2B8</title>");
         assertThat(admin).contains("\uAD00\uB9AC \uB300\uC2DC\uBCF4\uB4DC");
@@ -74,6 +77,7 @@ class StaticResourceTextTest {
     @Test
     void questionPageUsesKoreanProcessLabelsWithoutPublicScoreCopy() throws IOException {
         String app = read("app.js");
+        String styles = read("styles.css");
 
         assertThat(app).contains("\uAC80\uC0C9 \uC870\uBB38");
         assertThat(app).contains("\uC778\uC6A9 \uC870\uBB38");
@@ -81,7 +85,11 @@ class StaticResourceTextTest {
         assertThat(app).contains("\uBCA1\uD130 \uD6C4\uBCF4");
         assertThat(app).contains("\uC9C8\uBB38 \uBD84\uC11D");
         assertThat(app).contains("\uB2F5\uBCC0 \uC791\uC131");
+        assertThat(app).contains("function selectedResearchAreas");
+        assertThat(app).contains("researchAreas");
         assertThat(app).doesNotContain("\uC810\uC218 ${");
+        assertThat(styles).contains(".research-area-fieldset");
+        assertThat(styles).contains(".research-area-option");
     }
 
     @Test

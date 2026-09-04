@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.lawassistant.domain.entity.Article;
@@ -11,6 +12,7 @@ import com.example.lawassistant.domain.entity.Law;
 import com.example.lawassistant.domain.entity.SnapshotVersion;
 import com.example.lawassistant.domain.enums.LawType;
 import com.example.lawassistant.domain.enums.QuestionType;
+import com.example.lawassistant.domain.enums.ResearchArea;
 import com.example.lawassistant.domain.enums.SnapshotStatus;
 import com.example.lawassistant.dto.QuestionInterpretationDto;
 import com.example.lawassistant.infrastructure.embedding.EmbeddingClient;
@@ -27,6 +29,49 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class RetrievalAgentRerankerTest {
+
+    @Test
+    void selectedDefenseAreaAddsDefenseQueriesAndPrioritizesDefenseLaw() {
+        ArticleRepository articleRepository = mock(ArticleRepository.class);
+        EmbeddingClient embeddingClient = mock(EmbeddingClient.class);
+        VectorSearchClient vectorSearchClient = mock(VectorSearchClient.class);
+        VectorIndexService vectorIndexService = mock(VectorIndexService.class);
+        RerankerClient rerankerClient = (query, candidates, topK) -> candidates.stream().limit(topK).toList();
+        Article defenseArticle = article(40L, "방위사업법", "제57조", "방산물자 수출허가 관련 조문");
+
+        when(articleRepository.searchByKeyword(eq("방산물자 수출"))).thenReturn(List.of(defenseArticle));
+        when(articleRepository.searchByKeyword(eq("방위사업법 수출허가"))).thenReturn(List.of(defenseArticle));
+        when(articleRepository.searchByKeyword(eq("국방과학기술 수출"))).thenReturn(List.of());
+        when(articleRepository.searchByKeyword(eq("수출허가 절차"))).thenReturn(List.of());
+        when(embeddingClient.embed(any())).thenReturn(List.of(0.1, 0.2, 0.3));
+        when(vectorSearchClient.search(eq("law_articles"), any(), eq(5))).thenReturn(List.of());
+
+        RetrievalAgent agent = new RetrievalAgent(
+                articleRepository,
+                embeddingClient,
+                vectorSearchClient,
+                vectorIndexService,
+                rerankerClient,
+                5,
+                5,
+                "law_articles"
+        );
+
+        var result = agent.retrieve(new QuestionInterpretationDto(
+                        "수출",
+                        null,
+                        List.of(),
+                        List.of(),
+                        List.of("수출허가 절차"),
+                        QuestionType.CONFIRMATORY
+                ),
+                null,
+                List.of(ResearchArea.DEFENSE_MATERIALS));
+
+        verify(articleRepository).searchByKeyword("방산물자 수출");
+        assertThat(result.hits()).hasSize(1);
+        assertThat(result.hits().get(0).article().getLaw().getTitle()).isEqualTo("방위사업법");
+    }
 
     @Test
     void retrieveUsesRerankerOrderForFinalHits() {

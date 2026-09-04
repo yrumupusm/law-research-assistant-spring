@@ -3,6 +3,7 @@ const questionInput = document.querySelector("#question");
 const asOfInput = document.querySelector("#as-of-date");
 const todayButton = document.querySelector("#today-button");
 const clearDateButton = document.querySelector("#clear-date-button");
+const researchAreaInputs = [...document.querySelectorAll('input[name="research-area"]')];
 const charCount = document.querySelector("#char-count");
 const submitButton = document.querySelector("#submit-button");
 const resultArea = document.querySelector("#result");
@@ -425,13 +426,19 @@ async function loadArticleDiff(articleId, previousId) {
   }
 }
 
-async function ask(question, asOf) {
+function selectedResearchAreas() {
+  return researchAreaInputs
+    .filter((input) => input.checked)
+    .map((input) => input.value);
+}
+
+async function ask(question, asOf, researchAreas) {
   renderLoading(question, asOf);
   setLoading(true);
   const response = await fetch("/api/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question, asOf: asOf || null }),
+    body: JSON.stringify({ question, asOf: asOf || null, researchAreas }),
   });
 
   const text = await response.text();
@@ -446,6 +453,7 @@ async function submitQuestion(question) {
   const trimmed = question.trim();
   if (!trimmed) return;
   const asOf = asOfInput.value || null;
+  const researchAreas = selectedResearchAreas();
   questionInput.value = trimmed;
   updateCharCount();
   const url = new URL(window.location.href);
@@ -455,10 +463,15 @@ async function submitQuestion(question) {
   } else {
     url.searchParams.delete("asOf");
   }
+  if (researchAreas.length) {
+    url.searchParams.set("areas", researchAreas.join(","));
+  } else {
+    url.searchParams.delete("areas");
+  }
   window.history.replaceState(null, "", url);
 
   try {
-    const response = await ask(trimmed, asOf);
+    const response = await ask(trimmed, asOf, researchAreas);
     renderResponse(trimmed, asOf, response);
   } catch (error) {
     renderError(error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.");
@@ -491,10 +504,15 @@ document.querySelectorAll("[data-question]").forEach((button) => {
 const searchParams = new URLSearchParams(window.location.search);
 const initialQuestion = searchParams.get("q");
 const initialAsOf = searchParams.get("asOf");
+const initialAreas = new Set((searchParams.get("areas") ?? "").split(",").filter(Boolean));
 
 if (initialAsOf) {
   asOfInput.value = initialAsOf;
 }
+
+researchAreaInputs.forEach((input) => {
+  input.checked = initialAreas.has(input.value);
+});
 
 updateCharCount();
 

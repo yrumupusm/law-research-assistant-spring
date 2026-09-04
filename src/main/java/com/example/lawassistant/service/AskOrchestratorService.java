@@ -3,6 +3,7 @@ package com.example.lawassistant.service;
 import com.example.lawassistant.domain.entity.SnapshotVersion;
 import com.example.lawassistant.domain.enums.AgentStepStatus;
 import com.example.lawassistant.domain.enums.QuestionType;
+import com.example.lawassistant.domain.enums.ResearchArea;
 import com.example.lawassistant.domain.enums.SearchStatus;
 import com.example.lawassistant.domain.enums.SnapshotStatus;
 import com.example.lawassistant.dto.AskResponse;
@@ -26,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AskOrchestratorService {
 
-    private static final String DISCLAIMER = "이 답변은 법령 조사 보조 결과이며, 최종 법률 판단을 대체하지 않습니다.";
+    private static final String DEFAULT_DISCLAIMER = "이 답변은 법령 조사 보조 결과이며, 최종 법률 판단을 대체하지 않습니다.";
 
     private final SnapshotVersionRepository snapshotVersionRepository;
     private final QueryAnalyzerAgent queryAnalyzerAgent;
@@ -66,6 +67,14 @@ public class AskOrchestratorService {
 
     @Transactional
     public AskResponse ask(String question, LocalDate asOf) {
+        return ask(question, asOf, List.of());
+    }
+
+    @Transactional
+    public AskResponse ask(String question, LocalDate asOf, List<ResearchArea> researchAreas) {
+        List<ResearchArea> safeResearchAreas = researchAreas == null ? List.of() : List.copyOf(researchAreas);
+        String disclaimer = disclaimerFor(safeResearchAreas);
+        String researchAreasTrace = traceResearchAreas(safeResearchAreas);
         String requestId = UUID.randomUUID().toString();
         Map<String, Integer> latency = new LinkedHashMap<>();
         SnapshotVersion snapshot = snapshotVersionRepository
@@ -119,7 +128,7 @@ public class AskOrchestratorService {
                     emptyBasis,
                     0.0,
                     new SearchDiagnosticsDto(requestId, List.of(), Map.of(), Map.of()),
-                    DISCLAIMER,
+                    disclaimer,
                     "no_snapshot"
             );
         }
@@ -134,7 +143,7 @@ public class AskOrchestratorService {
             agentTraceService.record(
                     requestId,
                     "QueryAnalyzerAgent",
-                    "questionLength=" + question.length(),
+                    "questionLength=" + question.length() + researchAreasTrace,
                     "failed",
                     AgentStepStatus.FAILED,
                     analyzeMs,
@@ -164,14 +173,16 @@ public class AskOrchestratorService {
         start = System.nanoTime();
         RetrievalResult retrievalResult;
         try {
-            retrievalResult = retrievalAgent.retrieve(interpretation, asOf);
+            retrievalResult = safeResearchAreas.isEmpty()
+                    ? retrievalAgent.retrieve(interpretation, asOf)
+                    : retrievalAgent.retrieve(interpretation, asOf, safeResearchAreas);
         } catch (RuntimeException ex) {
             int retrieveMs = elapsedMs(start);
             latency.put("retrieve", retrieveMs);
             agentTraceService.record(
                     requestId,
                     "RetrievalAgent",
-                    "queries=" + interpretation.generatedQueries().size(),
+                    "queries=" + interpretation.generatedQueries().size() + researchAreasTrace,
                     "failed",
                     AgentStepStatus.FAILED,
                     retrieveMs,
@@ -344,7 +355,7 @@ public class AskOrchestratorService {
                 effectiveBasis,
                 reviewed.confidence(),
                 diagnostics,
-                DISCLAIMER,
+                disclaimer,
                 reviewed.status() == SearchStatus.FAILED
                         ? defaultIfBlank(reviewed.errorMessage(), "answer_generation_failed")
                         : null
@@ -403,7 +414,7 @@ public class AskOrchestratorService {
                 ),
                 0.0,
                 new SearchDiagnosticsDto(requestId, List.of(), Map.of("retrieved", 0, "cited", 0), latency),
-                DISCLAIMER,
+                DEFAULT_DISCLAIMER,
                 errorMessage
         );
     }
@@ -414,5 +425,29 @@ public class AskOrchestratorService {
 
     private String defaultIfBlank(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private String disclaimerFor(List<ResearchArea> researchAreas) {
+        boolean strategicGoods = researchAreas.contains(ResearchArea.STRATEGIC_GOODS);
+        boolean defenseMaterials = researchAreas.contains(ResearchArea.DEFENSE_MATERIALS);
+        if (strategicGoods && defenseMaterials) {
+            return "확인 안내: 전략물자에 해당하는 경우 무역안보관리원이 안내하는 판정 및 수출허가 기준을, "
+                    + "방산물자 또는 국방과학기술에 해당하는 경우 방위사업청의 수출허가 또는 예비승인 기준을 확인해야 합니다. "
+                    + "물품 사양, 최종사용자, 수출국 등에 따라 적용 여부가 달라질 수 있습니다.";
+        }
+        if (strategicGoods) {
+            return "확인 안내: 전략물자에 해당하는 경우, 수출 전에 무역안보관리원이 안내하는 전략물자 판정 및 수출허가 기준을 확인해야 합니다. "
+                    + "물품 사양, 최종사용자, 수출국 등에 따라 적용 여부가 달라질 수 있습니다.";
+        }
+        if (defenseMaterials) {
+            return "확인 안내: 방산물자 또는 국방과학기술에 해당하는 경우, 수출·중개·기술 이전 전에 "
+                    + "방위사업청의 수출허가 또는 예비승인 기준을 확인해야 합니다. "
+                    + "물품 사양, 최종사용자, 수출국 등에 따라 적용 여부가 달라질 수 있습니다.";
+        }
+        return DEFAULT_DISCLAIMER;
+    }
+
+    private String traceResearchAreas(List<ResearchArea> researchAreas) {
+        return researchAreas.isEmpty() ? "" : ", researchAreas=" + researchAreas;
     }
 }

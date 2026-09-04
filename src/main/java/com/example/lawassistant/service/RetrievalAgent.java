@@ -2,6 +2,7 @@ package com.example.lawassistant.service;
 
 import com.example.lawassistant.domain.entity.Article;
 import com.example.lawassistant.domain.enums.QuestionType;
+import com.example.lawassistant.domain.enums.ResearchArea;
 import com.example.lawassistant.dto.QuestionInterpretationDto;
 import com.example.lawassistant.infrastructure.embedding.EmbeddingClient;
 import com.example.lawassistant.infrastructure.rerank.RerankCandidate;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,16 +66,28 @@ public class RetrievalAgent {
 
     @Transactional(readOnly = true)
     public RetrievalResult retrieve(QuestionInterpretationDto interpretation, LocalDate asOf) {
+        return retrieve(interpretation, asOf, List.of());
+    }
+
+    @Transactional(readOnly = true)
+    public RetrievalResult retrieve(
+            QuestionInterpretationDto interpretation,
+            LocalDate asOf,
+            List<ResearchArea> researchAreas
+    ) {
         if (interpretation.questionType() == QuestionType.INSUFFICIENT) {
             return new RetrievalResult(List.of(), 0, 0, 0);
         }
 
+        List<ResearchArea> safeResearchAreas = researchAreas == null ? List.of() : List.copyOf(researchAreas);
+        List<String> queries = retrievalQueries(interpretation, safeResearchAreas);
         Map<Long, MutableHit> merged = new LinkedHashMap<>();
-        int keywordHits = collectKeywordHits(interpretation, asOf, merged);
-        int vectorHits = collectVectorHits(interpretation, asOf, merged);
+        int keywordHits = collectKeywordHits(queries, asOf, merged);
+        int vectorHits = collectVectorHits(queries, asOf, merged);
 
         List<RetrievalHit> hits = rerank(
-                interpretation,
+                queries,
+                safeResearchAreas,
                 merged.values().stream()
                 .map(MutableHit::toHit)
                 .sorted(Comparator.comparingDouble(RetrievalHit::score).reversed())
@@ -83,7 +97,11 @@ public class RetrievalAgent {
         return new RetrievalResult(hits, keywordHits, vectorHits, merged.size());
     }
 
-    private List<RetrievalHit> rerank(QuestionInterpretationDto interpretation, List<RetrievalHit> hits) {
+    private List<RetrievalHit> rerank(
+            List<String> queries,
+            List<ResearchArea> researchAreas,
+            List<RetrievalHit> hits
+    ) {
         if (hits.isEmpty()) {
             return hits;
         }
@@ -103,10 +121,15 @@ public class RetrievalAgent {
                     )
             ));
         }
-        String query = String.join(" ", interpretation.generatedQueries());
+        String query = String.join(" ", queries);
         return rerankerClient.rerank(query, candidates, topK).stream()
-                .map(candidate -> withRerankScore(byId.get(candidate.id()), candidate.score()))
+                .map(candidate -> withRerankScore(
+                        byId.get(candidate.id()),
+                        candidate.score(),
+                        researchAreaBoost(byId.get(candidate.id()), researchAreas)
+                ))
                 .filter(hit -> hit != null)
+                .sorted(Comparator.comparingDouble(RetrievalHit::score).reversed())
                 .toList();
     }
 
@@ -120,20 +143,20 @@ public class RetrievalAgent {
                 + article.getContent();
     }
 
-    private RetrievalHit withRerankScore(RetrievalHit hit, double rerankScore) {
+    private RetrievalHit withRerankScore(RetrievalHit hit, double rerankScore, double researchAreaBoost) {
         if (hit == null) {
             return null;
         }
         return new RetrievalHit(
                 hit.article(),
-                rerankScore,
+                rerankScore + researchAreaBoost,
                 hit.reason() + "; 재정렬 점수: " + formatScore(rerankScore)
         );
     }
 
-    private int collectKeywordHits(QuestionInterpretationDto interpretation, LocalDate asOf, Map<Long, MutableHit> merged) {
+    private int collectKeywordHits(List<String> queries, LocalDate asOf, Map<Long, MutableHit> merged) {
         int count = 0;
-        for (String query : interpretation.generatedQueries()) {
+        for (String query : queries) {
             List<Article> articles = asOf == null
                     ? articleRepository.searchByKeyword(query)
                     : articleRepository.searchByKeywordAsOf(query, asOf);
@@ -160,8 +183,8 @@ public class RetrievalAgent {
         return count;
     }
 
-    private int collectVectorHits(QuestionInterpretationDto interpretation, LocalDate asOf, Map<Long, MutableHit> merged) {
-        String queryText = String.join(" ", interpretation.generatedQueries());
+    private int collectVectorHits(List<String> queries, LocalDate asOf, Map<Long, MutableHit> merged) {
+        String queryText = String.join(" ", queries);
         if (queryText.isBlank()) {
             return 0;
         }
@@ -189,6 +212,33 @@ public class RetrievalAgent {
             rank++;
         }
         return count;
+    }
+
+    private List<String> retrievalQueries(
+            QuestionInterpretationDto interpretation,
+            List<ResearchArea> researchAreas
+    ) {
+        LinkedHashSet<String> queries = new LinkedHashSet<>();
+        researchAreas.stream()
+                .filter(area -> area != null)
+                .flatMap(area -> area.retrievalQueries().stream())
+                .forEach(queries::add);
+        queries.addAll(interpretation.generatedQueries());
+        return queries.stream()
+                .filter(query -> query != null && !query.isBlank())
+                .limit(12)
+                .toList();
+    }
+
+    private double researchAreaBoost(RetrievalHit hit, List<ResearchArea> researchAreas) {
+        if (hit == null || researchAreas.isEmpty()) {
+            return 0.0;
+        }
+        String lawTitle = hit.article().getLaw().getTitle();
+        long matches = researchAreas.stream()
+                .filter(area -> area != null && area.matchesLawTitle(lawTitle))
+                .count();
+        return matches == 0 ? 0.0 : 0.45 * matches;
     }
 
     private void merge(Map<Long, MutableHit> merged, Article article, double score, String reason) {

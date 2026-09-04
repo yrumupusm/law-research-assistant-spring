@@ -278,6 +278,66 @@ button:disabled {
     gap: 12px;
 }
 
+.research-area-fieldset {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.research-area-fieldset legend {
+    padding: 0;
+    color: var(--foreground);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.research-area-fieldset legend span,
+.research-area-fieldset p {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.research-area-fieldset p {
+    margin: 0;
+}
+
+.research-area-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.research-area-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    background: #ffffff;
+    color: var(--foreground);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.research-area-option:hover,
+.research-area-option:has(input:focus-visible) {
+    border-color: var(--primary);
+    background: #f8fbff;
+}
+
+.research-area-option input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--primary);
+}
+
 .option-row {
     display: flex;
     flex-wrap: wrap;

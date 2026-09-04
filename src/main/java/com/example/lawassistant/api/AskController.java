@@ -25,6 +25,6 @@ public class AskController {
     @PostMapping("/ask")
     @Operation(summary = "Ask a legal research question", description = "Analyzes the question, retrieves related law articles, writes a cited answer, and records diagnostics.")
     public AskResponse ask(@Valid @RequestBody AskRequest request) {
-        return askOrchestratorService.ask(request.question(), request.asOf());
+        return askOrchestratorService.ask(request.question(), request.asOf(), request.researchAreas());
     }
 }
