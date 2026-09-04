@@ -37,7 +37,7 @@ public class EvidenceValidatorAgent {
 
     private double threshold(QuestionType questionType) {
         return switch (questionType) {
-            case EXPLORATORY, LAW_LIST -> EXPLORATORY_THRESHOLD;
+            case EXPLORATORY -> EXPLORATORY_THRESHOLD;
             case METADATA, REVISION_COMPARE -> STRUCTURED_THRESHOLD;
             case CONFIRMATORY -> CONFIRMATORY_THRESHOLD;
             case INSUFFICIENT -> Double.POSITIVE_INFINITY;

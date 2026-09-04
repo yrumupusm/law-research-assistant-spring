@@ -92,7 +92,7 @@ public class RetrievalAgent {
                 .map(MutableHit::toHit)
                 .sorted(Comparator.comparingDouble(RetrievalHit::score).reversed())
                 .toList(),
-                interpretation.questionType() == QuestionType.LAW_LIST
+                isLawListQuestion(interpretation)
         );
 
         return new RetrievalResult(hits, keywordHits, vectorHits, merged.size());
@@ -250,7 +250,7 @@ public class RetrievalAgent {
                 .filter(area -> area != null)
                 .flatMap(area -> area.retrievalQueries().stream())
                 .forEach(queries::add);
-        if (interpretation.questionType() == QuestionType.LAW_LIST) {
+        if (isLawListQuestion(interpretation)) {
             researchAreas.stream()
                     .filter(area -> area != null)
                     .flatMap(area -> area.preferredLawTitles().stream())
@@ -261,6 +261,10 @@ public class RetrievalAgent {
                 .filter(query -> query != null && !query.isBlank())
                 .limit(12)
                 .toList();
+    }
+
+    private boolean isLawListQuestion(QuestionInterpretationDto interpretation) {
+        return interpretation.domainCandidates().contains("법령 목록");
     }
 
     private double researchAreaBoost(RetrievalHit hit, List<ResearchArea> researchAreas) {

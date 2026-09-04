@@ -197,7 +197,7 @@ class AnswerWriterAgentTest {
                         List.of("수출통제", "방산"),
                         List.of(),
                         List.of("방산물자 수출"),
-                        QuestionType.LAW_LIST
+                        QuestionType.CONFIRMATORY
                 ),
                 List.of(
                         new RetrievalHit(defenseArticle, 0.9, "키워드 일치"),

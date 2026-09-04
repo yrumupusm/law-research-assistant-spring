@@ -440,12 +440,14 @@ async function ask(question, asOf, researchAreas) {
     body: JSON.stringify({ question, asOf: asOf || null, researchAreas }),
   });
 
-  const text = await response.text();
   if (!response.ok) {
-    throw new Error(`요청 실패 (${response.status}): ${text}`);
+    if (response.status === 400) {
+      throw new Error("입력 내용을 확인해 주세요.");
+    }
+    throw new Error("요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.");
   }
 
-  return JSON.parse(text);
+  return response.json();
 }
 
 async function submitQuestion(question) {

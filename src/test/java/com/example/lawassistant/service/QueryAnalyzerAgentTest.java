@@ -51,11 +51,12 @@ class QueryAnalyzerAgentTest {
     }
 
     @Test
-    void classifiesLawListQuestionBeforeExportConfirmation() {
+    void marksLawListQuestionWithoutChangingItsExportQuestionType() {
         var result = agent.analyze("탱크를 수출하려는데 관련 법령이 뭐 있어?");
 
-        assertThat(result.questionType()).isEqualTo(QuestionType.LAW_LIST);
+        assertThat(result.questionType()).isEqualTo(QuestionType.CONFIRMATORY);
         assertThat(result.action()).isEqualTo("수출");
         assertThat(result.object()).isEqualTo("방산물자");
+        assertThat(result.domainCandidates()).contains("법령 목록");
     }
 }

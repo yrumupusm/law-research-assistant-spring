@@ -51,9 +51,6 @@ public class QueryAnalyzerAgent {
                 || containsAny(lower, "can i do this", "is this allowed", "can we do this")) {
             return QuestionType.INSUFFICIENT;
         }
-        if (isLawListQuestion(question, lower)) {
-            return QuestionType.LAW_LIST;
-        }
         if (containsAny(question, "\uD574\uC57C", "\uAC00\uB2A5", "\uD544\uC694", "\uC81C\uACF5", "\uC218\uCD9C", "\uBC18\uCD9C")
                 || containsAny(lower, "can i", "should", "need", "provide", "export", "transfer")) {
             return QuestionType.CONFIRMATORY;
@@ -165,6 +162,9 @@ public class QueryAnalyzerAgent {
         if (containsAny(question, "무역안보관리원")) {
             domains.add("무역안보");
         }
+        if (isLawListQuestion(question, lower)) {
+            domains.add("법령 목록");
+        }
         return domains;
     }
 
@@ -216,7 +216,7 @@ public class QueryAnalyzerAgent {
             queries.add("무역안보 업무");
         }
         addKnownLawTerms(question, queries);
-        queries.addAll(domains);
+        queries.addAll(domains.stream().filter(domain -> !"법령 목록".equals(domain)).toList());
         queries.add(question);
         return queries.stream()
                 .filter(value -> value != null && !value.isBlank())

@@ -145,10 +145,10 @@ class RetrievalAgentRerankerTest {
         var result = agent.retrieve(new QuestionInterpretationDto(
                 "수출",
                 "방산물자",
-                List.of("방산"),
+                List.of("방산", "법령 목록"),
                 List.of(),
                 List.of("방산물자 수출"),
-                QuestionType.LAW_LIST
+                QuestionType.CONFIRMATORY
         ));
 
         assertThat(result.hits()).hasSize(2);

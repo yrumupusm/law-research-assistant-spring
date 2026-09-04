@@ -92,6 +92,8 @@ class StaticResourceTextTest {
         assertThat(app).contains("\uB2F5\uBCC0 \uC791\uC131");
         assertThat(app).contains("function selectedResearchAreas");
         assertThat(app).contains("researchAreas");
+        assertThat(app).contains("요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+        assertThat(app).doesNotContain("요청 실패 (${response.status}): ${text}");
         assertThat(app).doesNotContain("\uC810\uC218 ${");
         assertThat(styles).contains(".research-area-selection");
         assertThat(styles).contains(".research-area-option");
